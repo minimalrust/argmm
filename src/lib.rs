@@ -156,12 +156,13 @@ unsafe fn min_simd_f32(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
     // Find the smallest value in the array by stacking and comparing
     let highpack = _mm_unpackhi_ps(values_low, values_low);
-    let lopack = _mm_unpacklo_ps(values_low, values_low);
+    let lowpack = _mm_unpacklo_ps(values_low, values_low);
 
-    let mut lowest = _mm_min_ps(highpack, lopack);
+    let mut lowest = _mm_min_ps(highpack, lowpack);
 
     let highestpack = _mm_unpackhi_ps(lowest, lowest);
     let lowestpack = _mm_unpacklo_ps(lowest, lowest);
+
     lowest = _mm_min_ps(highestpack, lowestpack);
 
     // Create a mask for the lowest value
@@ -170,7 +171,7 @@ unsafe fn min_simd_f32(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
     // Replace indexes that are not the related to the lowest value with the f32::MAX
     index_low = _mm_or_ps(
         _mm_and_ps(index_low, low_mask), // the new values that are lower
-        _mm_andnot_ps(low_mask, _mm_set1_ps(std::f32::MAX)),  // false and old_index
+        _mm_andnot_ps(low_mask, _mm_set1_ps(std::f32::MAX)), // false and old_index
     );
 
     // Convert values back into arrays
@@ -288,12 +289,13 @@ unsafe fn max_simd_f32(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
     // Find the largest value in the array by stacking and comparing
     let highpack = _mm_unpackhi_ps(values_high, values_high);
-    let lopack = _mm_unpacklo_ps(values_high, values_high);
+    let lowpack = _mm_unpacklo_ps(values_high, values_high);
 
-    let mut highest = _mm_max_ps(highpack, lopack);
+    let mut highest = _mm_max_ps(highpack, lowpack);
 
-    let highestpack = _mm_unpackhi_ps(highpack, highpack);
-    let lowestpack = _mm_unpacklo_ps(lopack, lopack);
+    let highestpack = _mm_unpackhi_ps(highest, highest);
+    let lowestpack = _mm_unpacklo_ps(highest, highest);
+
     highest = _mm_max_ps(highestpack, lowestpack);
 
     // Create a mask for the highest value
@@ -302,7 +304,7 @@ unsafe fn max_simd_f32(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
     // Replace indexes that are not the related to the highest value with the f32::MAX
     index_high = _mm_or_ps(
         _mm_and_ps(index_high, high_mask), // the new values that are lower
-        _mm_andnot_ps(high_mask, _mm_set1_ps(std::f32::MAX)),  // false and old_index
+        _mm_andnot_ps(high_mask, _mm_set1_ps(std::f32::MAX)), // false and old_index
     );
 
     // Convert values back into arrays
