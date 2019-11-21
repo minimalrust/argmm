@@ -13,6 +13,11 @@ fn min(c: &mut Criterion) {
     c.bench_function("argmin", |b| b.iter(|| argmm::argmin(data.as_slice())));
 }
 
+fn max(c: &mut Criterion) {
+    let data = get_array();
+    c.bench_function("argmax", |b| b.iter(|| argmm::argmax(data.as_slice())));
+}
+
 fn simd_min_f32(c: &mut Criterion) {
     let data = get_array();
     c.bench_function("argmin_simd f32", |b| {

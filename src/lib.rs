@@ -81,7 +81,7 @@ pub fn split_array<T: Copy>(arr: &[T]) -> (Option<&[T]>, Option<&[T]>) {
 /// ```rust
 /// # use argmm::argmin_simd_f32;
 /// # fn main() {
-/// let arr = [5., 5., 9., 7., 9., 1., 3., 4.];
+/// let arr = [5., 5., 9., 7., 9., 1., 3., 1.];
 /// // All elements will be run using argmin internally
 /// let idx = argmin_simd_f32(&arr).unwrap();
 /// assert_eq!(idx, 5);
@@ -154,11 +154,31 @@ unsafe fn min_simd_f32(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
         );
     }
 
+    // Find the smallest value in the array by stacking and comparing
+    let highpack = _mm_unpackhi_ps(values_low, values_low);
+    let lopack = _mm_unpacklo_ps(values_low, values_low);
+
+    let mut lowest = _mm_min_ps(highpack, lopack);
+
+    let highestpack = _mm_unpackhi_ps(lowest, lowest);
+    let lowestpack = _mm_unpacklo_ps(lowest, lowest);
+    lowest = _mm_min_ps(highestpack, lowestpack);
+
+    // Create a mask for the lowest value
+    let low_mask = _mm_cmpeq_ps(lowest, values_low);
+
+    // Replace indexes that are not the related to the lowest value with the f32::MAX
+    index_low = _mm_or_ps(
+        _mm_and_ps(index_low, low_mask), // the new values that are lower
+        _mm_andnot_ps(low_mask, _mm_set1_ps(std::f32::MAX)),  // false and old_index
+    );
+
     // Convert values back into arrays
     let value_array = std::mem::transmute::<__m128, [f32; 4]>(values_low);
     let index_array = std::mem::transmute::<__m128, [f32; 4]>(index_low);
 
-    let min_index = argmin(&value_array);
+    // Find the lowest index in the available indexes that match the lowest value
+    let min_index = argmin(&index_array);
     let value = *value_array.get_unchecked(min_index);
     let index = *index_array.get_unchecked(min_index);
 
@@ -266,12 +286,31 @@ unsafe fn max_simd_f32(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
         );
     }
 
+    // Find the largest value in the array by stacking and comparing
+    let highpack = _mm_unpackhi_ps(values_high, values_high);
+    let lopack = _mm_unpacklo_ps(values_high, values_high);
+
+    let mut highest = _mm_max_ps(highpack, lopack);
+
+    let highestpack = _mm_unpackhi_ps(highpack, highpack);
+    let lowestpack = _mm_unpacklo_ps(lopack, lopack);
+    highest = _mm_max_ps(highestpack, lowestpack);
+
+    // Create a mask for the highest value
+    let high_mask = _mm_cmpeq_ps(highest, values_high);
+
+    // Replace indexes that are not the related to the highest value with the f32::MAX
+    index_high = _mm_or_ps(
+        _mm_and_ps(index_high, high_mask), // the new values that are lower
+        _mm_andnot_ps(high_mask, _mm_set1_ps(std::f32::MAX)),  // false and old_index
+    );
+
     // Convert values back into arrays
     let value_array = std::mem::transmute::<__m128, [f32; 4]>(values_high);
     let index_array = std::mem::transmute::<__m128, [f32; 4]>(index_high);
 
-    let max_index = argmin(&value_array);
-
+    // Find the lowest index in the available indexes that match the highest value
+    let max_index = argmin(&index_array);
     let value = *value_array.get_unchecked(max_index);
     let index = *index_array.get_unchecked(max_index);
 
