@@ -323,7 +323,7 @@ unsafe fn max_simd_f32(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 mod tests {
     use super::{argmax, argmax_simd_f32, argmin, argmin_simd_f32};
     #[test]
-    fn basic_argx_test() {
+    fn test_argmin_and_argmax_find_the_correct_index() {
         let arr = [10, 2, 10, 32, 47, 3, 22];
         assert_eq!(argmin(&arr), 1);
         assert_eq!(argmax(&arr), 4);
@@ -338,7 +338,7 @@ mod tests {
     }
 
     #[test]
-    fn test_argx_and_simdx_get_same_result() {
+    fn test_argmin_and_argmax_and_simd_versions_return_the_same_results() {
         let data = vec![
             2924.92, 2941.76, 2964.33, 2973.01, 2995.82, 2990.41, 2975.95, 2979.63, 2993.07,
             2999.91, 3013.77, 3014.3, 3004.04, 2984.42, 2995.11, 2976.61, 2985.03, 3005.47,
@@ -351,8 +351,8 @@ mod tests {
 
         assert_eq!(data.len() % 4, 1);
 
-        let min_index = argmin_simd_f32(&data).unwrap(); // 33
-        let max_index = argmax_simd_f32(&data).unwrap(); // 20
+        let min_index = argmin_simd_f32(&data).unwrap();
+        let max_index = argmax_simd_f32(&data).unwrap();
         let argmin_index = argmin(&data);
         let argmax_index = argmax(&data);
 
@@ -360,5 +360,19 @@ mod tests {
         assert_eq!(argmax_index, max_index);
         assert_eq!(data[min_index], 2840.6);
         assert_eq!(data[max_index], 3025.86);
+    }
+
+    #[test]
+    fn test_first_index_is_returned_when_identical_values_found() {
+        let data = [10., 4., 6., 9., 9., 22., 22., 4.];
+        let argmin_index = argmin(&data);
+        let argmin_simd_index = argmin_simd_f32(&data).unwrap();
+        assert_eq!(argmin_index, argmin_simd_index);
+        assert_eq!(argmin_index, 1);
+
+        let argmax_index = argmax(&data);
+        let argmax_simd_index = argmax_simd_f32(&data).unwrap();
+        assert_eq!(argmax_index, argmax_simd_index);
+        assert_eq!(argmax_index, 5);
     }
 }
