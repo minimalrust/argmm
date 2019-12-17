@@ -1,4 +1,4 @@
-use argmm;
+use argmm::{argmin_f32, argmax_f32};
 use std::collections::HashMap;
 
 fn main() {
@@ -46,10 +46,10 @@ fn main() {
             let current_window = &arr[start_index..end_index];
 
             // The low of the current window
-            low_index = start_index + argmm::argmin_simd_f32(&current_window).unwrap();
+            low_index = start_index + argmin_f32(&current_window).unwrap();
 
             if low_index == start_index {
-                high_index = start_index + argmm::argmax_simd_f32(&current_window).unwrap();
+                high_index = start_index + argmax_f32(&current_window).unwrap();
                 hm.insert(low_index, high_index);
                 ext += 1;
                 continue;
