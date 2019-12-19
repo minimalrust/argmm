@@ -1,8 +1,8 @@
 mod simd;
 mod utils;
 
-pub use simd::{argmin_f32, argmax_f32};
-pub use utils::{split_array};
+pub use simd::{argmax_f32, argmin_f32, argmin_i32};
+pub use utils::split_array;
 
 #[inline]
 /// Locates the index of the smallest value in the array

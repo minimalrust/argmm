@@ -264,7 +264,7 @@ unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
 #[cfg(test)]
 mod tests {
-    use super::{argmin_f32, argmax_f32, simple_argmax, simple_argmin};
+    use super::{argmax_f32, argmin_f32, simple_argmax, simple_argmin};
     #[test]
     fn test_argmin_and_argmax_find_the_correct_index() {
         let arr = [10, 2, 10, 32, 47, 3, 22];

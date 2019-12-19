@@ -1,4 +1,4 @@
-use argmm::{argmin_f32, argmax_f32};
+use argmm::{argmax_f32, argmin_f32};
 use std::collections::HashMap;
 
 fn main() {
