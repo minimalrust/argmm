@@ -2,38 +2,6 @@ use crate::utils::split_array;
 use crate::{argmax as simple_argmax, argmin as simple_argmin};
 use std::arch::x86_64::*;
 
-/// Locate the index of the smallest `f32` in the array using SIMD.
-///
-/// # Vectorization conditions
-/// The function compares 2 lanes of 4 elements on each loop. Any elements that don't fit into the
-/// SIMD lane will have the remaining elements ran using a non-vectorized `argmin` function.
-/// The smallest of the two results are then returned.
-///
-/// # Examples
-/// `len` >= 8 - At worst 3 elements ran using a non-vectorized `argmin` function.
-/// ```rust
-/// # use argmm::argmin_f32;
-/// # fn main() {
-/// let arr = [6., 7., 4., 2., 5., 9., 3., 9., 2., 3., 8.];
-/// // [6., 7., 4.] will be run using argmin internally
-/// // [2., 5., 9., 3., 9., 2., 3., 8.] using argmin_simd version
-/// // [4.] and [.2] will be compared and the index of the lowest returned
-/// let idx = argmin_f32(&arr).unwrap();
-/// assert_eq!(idx, 3);
-/// assert_eq!(arr[idx], 2.);
-/// # }
-/// ```
-/// `len` < 8 - All elements ran using a non-vectorized `argmin` function.
-/// ```rust
-/// # use argmm::argmin_f32;
-/// # fn main() {
-/// let arr = [5., 5., 9., 7., 9., 1., 3., 1.];
-/// // All elements will be run using argmin internally
-/// let idx = argmin_f32(&arr).unwrap();
-/// assert_eq!(idx, 5);
-/// assert_eq!(arr[idx], 1.);
-/// # }
-/// ```
 #[inline]
 pub fn argmin_f32(arr: &[f32]) -> Option<usize> {
     match split_array(arr) {
@@ -58,9 +26,6 @@ pub fn argmin_f32(arr: &[f32]) -> Option<usize> {
     }
 }
 
-/// Unsafe SIMD function to locate smallest `f32`. The function should only be called via a safe API
-/// which passes a correctly sized array as the first argument and any offset to the result as the
-/// second.
 #[inline]
 unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
     // Create a SIMD array with an offset if the reminder array was used
@@ -132,38 +97,6 @@ unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
     (value, index as usize)
 }
 
-/// Locate the index of the largest `f32` in the array using SIMD.
-///
-/// # Vectorization conditions
-/// The function compares 2 lanes of 4 elements on each loop. Any elements that don't fit into the
-/// SIMD lane will have the remaining elements ran using a non-vectorized `argmax` function.
-/// The largest of the two results are then returned.
-///
-/// # Examples
-/// `len` >= 8 - At worst 3 elements ran using a non-vectorized `argmax` function.
-/// ```rust
-/// # use argmm::argmax_f32;
-/// # fn main() {
-/// let arr = [6., 7., 4., 2., 5., 9., 3., 9., 2., 3., 8.];
-/// // [6., 7., 4.] will be run using argmax internally
-/// // [2., 5., 9., 3., 9., 2., 3., 8.] using argmax_simd version
-/// // [4.] and [.2] will be compared and the index of the largest returned
-/// let idx = argmax_f32(&arr).unwrap();
-/// assert_eq!(idx, 5);
-/// assert_eq!(arr[idx], 9.);
-/// # }
-/// ```
-/// `len` < 8 - All elements ran using a non-vectorized `argmax` function.
-/// ```rust
-/// # use argmm::argmax_f32;
-/// # fn main() {
-/// let arr = [5., 5., 9., 7., 9., 1., 3., 4.];
-/// // All elements will be run using argmax internally
-/// let idx = argmax_f32(&arr).unwrap();
-/// assert_eq!(idx, 2);
-/// assert_eq!(arr[idx], 9.);
-/// # }
-/// ```
 #[inline]
 pub fn argmax_f32(arr: &[f32]) -> Option<usize> {
     match split_array(arr) {
@@ -188,9 +121,6 @@ pub fn argmax_f32(arr: &[f32]) -> Option<usize> {
     }
 }
 
-/// Unsafe SIMD function to locate largest `f32`. The function should only be called via a safe API
-/// which passes a correctly sized array as the first argument and any offset to the result as the
-/// second.
 #[inline]
 unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
     // Create a SIMD array with an offset if the reminder array was used
@@ -265,23 +195,31 @@ unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 #[cfg(test)]
 mod tests {
     use super::{argmax_f32, argmin_f32, simple_argmax, simple_argmin};
-    #[test]
-    fn test_argmin_and_argmax_find_the_correct_index() {
-        let arr = [10, 2, 10, 32, 47, 3, 22];
-        assert_eq!(simple_argmin(&arr), 1);
-        assert_eq!(simple_argmax(&arr), 4);
+    use rand::{thread_rng, Rng};
+    use rand_distr::Exp;
 
-        let arr = [9.1, 19.9, 5.2];
-        assert_eq!(simple_argmin(&arr), 2);
-        assert_eq!(simple_argmax(&arr), 1);
-
-        let arr = [std::f32::INFINITY, std::f32::NAN, std::f32::NEG_INFINITY];
-        assert_eq!(simple_argmin(&arr), 2);
-        assert_eq!(simple_argmax(&arr), 0);
+    fn get_array_f32() -> Vec<f32> {
+        let rng = thread_rng();
+        let exp = Exp::new(1.0).unwrap();
+        rng.sample_iter(exp).take(1025).collect()
     }
 
     #[test]
-    fn test_argmin_and_argmax_and_simd_versions_return_the_same_results() {
+    fn test_using_a_random_input_returns_the_same_result() {
+        let data = get_array_f32();
+        assert_eq!(data.len() % 4, 1);
+
+        let min_index = argmin_f32(&data).unwrap();
+        let max_index = argmax_f32(&data).unwrap();
+        let argmin_index = simple_argmin(&data);
+        let argmax_index = simple_argmax(&data);
+
+        assert_eq!(argmin_index, min_index);
+        assert_eq!(argmax_index, max_index);
+    }
+
+    #[test]
+    fn test_both_versions_return_the_same_results() {
         let data = vec![
             2924.92, 2941.76, 2964.33, 2973.01, 2995.82, 2990.41, 2975.95, 2979.63, 2993.07,
             2999.91, 3013.77, 3014.3, 3004.04, 2984.42, 2995.11, 2976.61, 2985.03, 3005.47,
@@ -317,5 +255,12 @@ mod tests {
         let argmax_simd_index = argmax_f32(&data).unwrap();
         assert_eq!(argmax_index, argmax_simd_index);
         assert_eq!(argmax_index, 5);
+    }
+
+    #[test]
+    fn test_infinity_and_nans_are_sorted_correctly() {
+        let arr = [std::f32::INFINITY, std::f32::NAN, std::f32::NEG_INFINITY];
+        assert_eq!(simple_argmin(&arr), 2);
+        assert_eq!(simple_argmax(&arr), 0);
     }
 }

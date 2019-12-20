@@ -1,8 +1,8 @@
 mod simd;
 mod utils;
 
-pub use simd::{argmax_f32, argmin_f32, argmin_i32};
-pub use utils::split_array;
+pub use simd::{argmax_f32, argmax_i32, argmin_f32, argmin_i32};
+pub use utils::find_price_rises;
 
 #[inline]
 /// Locates the index of the smallest value in the array
