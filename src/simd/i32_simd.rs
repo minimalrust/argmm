@@ -42,22 +42,25 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     let increment = _mm_set1_epi32(4);
 
     // Initialise a new SIMD array with the first 4 values
-    let mut values_low = _mm_lddqu_si128(sim_arr.get_unchecked(0..4).as_ptr() as *const __m128i);
+    let mut values_low = _mm_loadu_si128(sim_arr.get_unchecked(0..4).as_ptr() as *const __m128i);
 
     // Iterate over the rest of the sim_arr in chunks of 4
     for i in (0..sim_arr.len()).step_by(4).skip(1) {
         // Put the values into the 4 registers
         let new_values =
-            _mm_lddqu_si128(sim_arr.get_unchecked(i..i + 4).as_ptr() as *const __m128i);
+            _mm_loadu_si128(sim_arr.get_unchecked(i..i + 4).as_ptr() as *const __m128i);
 
         // Create a mask where any 'left' values lower than 'right' are true
         let lt_mask = _mm_cmplt_epi32(new_values, values_low);
 
-        // Compare the new and previous low values
-        values_low = _mm_min_epi32(new_values, values_low);
-
         // Increment the index for this chunk of values
         new_index_low = _mm_add_epi32(new_index_low, increment);
+
+        // Instrinsic hack that improves conditional selection - blend far too slow
+        values_low = _mm_or_si128(
+            _mm_and_si128(new_values, lt_mask), // the new values that are lower
+            _mm_andnot_si128(lt_mask, values_low),  // false and old_index
+        );
 
         // Instrinsic hack that improves conditional selection - blend far too slow
         index_low = _mm_or_si128(
@@ -138,28 +141,31 @@ unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     let increment = _mm_set1_epi32(4);
 
     // Initialise a new SIMD array with the first 4 values
-    let mut values_high = _mm_lddqu_si128(sim_arr.get_unchecked(0..4).as_ptr() as *const __m128i);
+    let mut values_high = _mm_loadu_si128(sim_arr.get_unchecked(0..4).as_ptr() as *const __m128i);
 
     // Iterate over the rest of the sim_arr in chunks of 4
     for i in (0..sim_arr.len()).step_by(4).skip(1) {
         // Put the values into the 4 registers
         let new_values =
-            _mm_lddqu_si128(sim_arr.get_unchecked(i..i + 4).as_ptr() as *const __m128i);
+            _mm_loadu_si128(sim_arr.get_unchecked(i..i + 4).as_ptr() as *const __m128i);
 
-        // Create a mask where any 'left' values lower than 'right' are true
+        // Create a mask where any 'left' values higher than 'right' are true
         let gt_mask = _mm_cmpgt_epi32(new_values, values_high);
-
-        // Compare the new and previous low values
-        values_high = _mm_max_epi32(new_values, values_high);
 
         // Increment the index for this chunk of values
         new_index_high = _mm_add_epi32(new_index_high, increment);
+
+        values_high = _mm_or_si128(
+            _mm_and_si128(new_values, gt_mask), // the new values that are lower
+            _mm_andnot_si128(gt_mask, values_high),  // false and old_index
+        );
 
         // Instrinsic hack that improves conditional selection - blend far too slow
         index_high = _mm_or_si128(
             _mm_and_si128(new_index_high, gt_mask), // the new values that are lower
             _mm_andnot_si128(gt_mask, index_high),  // false and old_index
         );
+
     }
 
     // Find the smallest value in the array by stacking and comparing
