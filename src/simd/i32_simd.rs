@@ -4,7 +4,7 @@ use std::arch::x86_64::*;
 
 #[inline]
 pub fn argmin_i32(arr: &[i32]) -> Option<usize> {
-    match split_array(arr) {
+    match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
             let rem_min_index = simple_argmin(rem);
             let rem_result = (rem[rem_min_index], rem_min_index);
@@ -80,7 +80,7 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
 
 #[inline]
 pub fn argmax_i32(arr: &[i32]) -> Option<usize> {
-    match split_array(arr) {
+    match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
             let rem_min_index = simple_argmax(rem);
             let rem_result = (rem[rem_min_index], rem_min_index);

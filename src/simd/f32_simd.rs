@@ -4,7 +4,7 @@ use std::arch::x86_64::*;
 
 #[inline]
 pub fn argmin_f32(arr: &[f32]) -> Option<usize> {
-    match split_array(arr) {
+    match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
             let rem_min_index = simple_argmin(rem);
             let rem_result = (rem[rem_min_index], rem_min_index);
@@ -30,7 +30,6 @@ unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
     let increment = _mm_set1_ps(4.0);
     let mut new_index_low = index_low;
-
 
     let mut values_low = _mm_loadu_ps(sim_arr.get_unchecked(0));
 
@@ -77,7 +76,7 @@ unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
 #[inline]
 pub fn argmax_f32(arr: &[f32]) -> Option<usize> {
-    match split_array(arr) {
+    match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
             let rem_min_index = simple_argmax(rem);
             let rem_result = (rem[rem_min_index], rem_min_index);
