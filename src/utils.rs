@@ -16,19 +16,13 @@ pub(crate) fn split_array<T: Copy>(arr: &[T]) -> (Option<&[T]>, Option<&[T]>) {
     // left_array will contain remainder elements
     let (left_arr, right_arr) = arr.split_at(n % 4);
 
-    let left_arr = match left_arr.is_empty() {
-        true => None,
-        false => Some(left_arr),
-    };
-
-    let right_arr = match right_arr.is_empty() {
-        true => None,
-        false => Some(right_arr),
-    };
-
-    (left_arr, right_arr)
+    match (left_arr.is_empty(), right_arr.is_empty()) {
+        (true, true) => (None, None),
+        (false, false) => (Some(left_arr), Some(right_arr)),
+        (true, false) => (None, Some(right_arr)),
+        (false, true) => (Some(left_arr), None),
+    }
 }
-
 pub fn find_price_rises(arr: &[f32], window: usize) -> Vec<(usize, usize)> {
     assert!(window > 1, "Please apply a window size of 2 or more");
 

@@ -259,8 +259,16 @@ mod tests {
 
     #[test]
     fn test_infinity_and_nans_are_sorted_correctly() {
-        let arr = [std::f32::INFINITY, std::f32::NAN, std::f32::NEG_INFINITY];
-        assert_eq!(simple_argmin(&arr), 2);
-        assert_eq!(simple_argmax(&arr), 0);
+        let data = [std::f32::INFINITY, std::f32::NAN, std::f32::NEG_INFINITY];
+
+        let argmin_index = simple_argmin(&data);
+        let argmin_simd_index = argmin_f32(&data).unwrap();
+        assert_eq!(argmin_index, argmin_simd_index);
+        assert_eq!(argmin_index, 2);
+
+        let argmax_index = simple_argmax(&data);
+        let argmax_simd_index = argmax_f32(&data).unwrap();
+        assert_eq!(argmax_index, argmax_simd_index);
+        assert_eq!(argmax_index, 0);
     }
 }
