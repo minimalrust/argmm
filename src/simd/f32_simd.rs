@@ -13,11 +13,7 @@ pub fn argmin_f32(arr: &[f32]) -> Option<usize> {
             let final_index = simple_argmin(final_test);
             Some(final_test[final_index].1)
         }
-        (Some(rem), None) => {
-            let rem_min_index = simple_argmin(rem);
-            let rem_result = (rem[rem_min_index], rem_min_index);
-            Some(rem_result.1)
-        }
+        (Some(rem), None) => Some(simple_argmin(rem)),
         (None, Some(sim)) => {
             let sim_result = unsafe { core_argmin(sim, 0) };
             Some(sim_result.1)
@@ -28,44 +24,30 @@ pub fn argmin_f32(arr: &[f32]) -> Option<usize> {
 
 #[inline]
 unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
-    // Create a SIMD array with an offset if the reminder array was used
+
     let offset = _mm_set1_ps(rem_offset as f32);
+    let mut index_low =_mm_add_ps( _mm_set_ps(3.0, 2.0, 1.0, 0.0), offset);
 
-    // Put the first 4 indexes into a SIMD array with
-    let mut index_low = _mm_set_ps(3.0, 2.0, 1.0, 0.0);
-
-    index_low = _mm_add_ps(index_low, offset);
-
+    let increment = _mm_set1_ps(4.0);
     let mut new_index_low = index_low;
 
-    // Setup a new SIMD array that will be used to increase the indexes
-    let increment = _mm_set1_ps(4.0);
 
-    // Initialise a new SIMD array with the first 4 values
     let mut values_low = _mm_loadu_ps(sim_arr.get_unchecked(0));
 
-    // Iterate over the rest of the sim_arr in chunks of 4
     for i in (0..sim_arr.len()).step_by(4).skip(1) {
-        // Put the values into the 4 registers
-        let new_values = _mm_loadu_ps(sim_arr.get_unchecked(i));
 
-        // Create a mask where any 'left' values lower than 'right' are true
-        let lt_mask = _mm_cmplt_ps(new_values, values_low);
-
-        // Compare the new and previous low values
-        values_low = _mm_min_ps(new_values, values_low);
-
-        // Increment the index for this chunk of values
         new_index_low = _mm_add_ps(new_index_low, increment);
 
-        // Instrinsic hack that improves conditional selection - blend far too slow
+        let new_values = _mm_loadu_ps(sim_arr.get_unchecked(i));
+        let lt_mask = _mm_cmplt_ps(new_values, values_low);
+
+        values_low = _mm_min_ps(new_values, values_low);
         index_low = _mm_or_ps(
-            _mm_and_ps(new_index_low, lt_mask), // the new values that are lower
-            _mm_andnot_ps(lt_mask, index_low),  // false and old_index
+            _mm_and_ps(new_index_low, lt_mask),
+            _mm_andnot_ps(lt_mask, index_low),
         );
     }
 
-    // Find the smallest value in the array by stacking and comparing
     let highpack = _mm_unpackhi_ps(values_low, values_low);
     let lowpack = _mm_unpacklo_ps(values_low, values_low);
 
@@ -76,20 +58,16 @@ unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
     lowest = _mm_min_ps(highestpack, lowestpack);
 
-    // Create a mask for the lowest value
     let low_mask = _mm_cmpeq_ps(lowest, values_low);
 
-    // Replace indexes that are not the related to the lowest value with the f32::MAX
     index_low = _mm_or_ps(
-        _mm_and_ps(index_low, low_mask), // the new values that are lower
-        _mm_andnot_ps(low_mask, _mm_set1_ps(std::f32::MAX)), // false and old_index
+        _mm_and_ps(index_low, low_mask),
+        _mm_andnot_ps(low_mask, _mm_set1_ps(std::f32::MAX)),
     );
 
-    // Convert values back into arrays
     let value_array = std::mem::transmute::<__m128, [f32; 4]>(values_low);
     let index_array = std::mem::transmute::<__m128, [f32; 4]>(index_low);
 
-    // Find the lowest index in the available indexes that match the lowest value
     let min_index = simple_argmin(&index_array);
     let value = *value_array.get_unchecked(min_index);
     let index = *index_array.get_unchecked(min_index);
@@ -108,11 +86,7 @@ pub fn argmax_f32(arr: &[f32]) -> Option<usize> {
             let final_index = simple_argmax(final_test);
             Some(final_test[final_index].1)
         }
-        (Some(rem), None) => {
-            let rem_min_index = simple_argmax(rem);
-            let rem_result = (rem[rem_min_index], rem_min_index);
-            Some(rem_result.1)
-        }
+        (Some(rem), None) => Some(simple_argmax(rem)),
         (None, Some(sim)) => {
             let sim_result = unsafe { core_argmax(sim, 0) };
             Some(sim_result.1)
@@ -123,44 +97,29 @@ pub fn argmax_f32(arr: &[f32]) -> Option<usize> {
 
 #[inline]
 unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
-    // Create a SIMD array with an offset if the reminder array was used
+
     let offset = _mm_set1_ps(rem_offset as f32);
-
-    // Put the first 4 indexes into a SIMD array with
-    let mut index_high = _mm_set_ps(3.0, 2.0, 1.0, 0.0);
-
-    index_high = _mm_add_ps(index_high, offset);
-
+    let mut index_high = _mm_add_ps(_mm_set_ps(3.0, 2.0, 1.0, 0.0), offset);
     let mut new_index_high = index_high;
 
-    // Setup a new SIMD array that will be used to increase the indexes
     let increment = _mm_set1_ps(4.0);
 
-    // Initialise a new SIMD array with the first 4 values
     let mut values_high = _mm_loadu_ps(sim_arr.get_unchecked(0));
 
-    // Iterate over the rest of the sim_arr in chunks of 4
     for i in (0..sim_arr.len()).step_by(4).skip(1) {
-        // Put the values into the 4 registers
-        let new_values = _mm_loadu_ps(sim_arr.get_unchecked(i));
 
-        // Create a mask where any 'left' values lower than 'right' are true
-        let gt_mask = _mm_cmpgt_ps(new_values, values_high);
-
-        // Compare the new and previous low values
-        values_high = _mm_max_ps(new_values, values_high);
-
-        // Increment the index for this chunk of values
         new_index_high = _mm_add_ps(new_index_high, increment);
 
-        // Instrinsic hack that improves conditional selection - blend far too slow
+        let new_values = _mm_loadu_ps(sim_arr.get_unchecked(i));
+        let gt_mask = _mm_cmpgt_ps(new_values, values_high);
+
+        values_high = _mm_max_ps(new_values, values_high);
         index_high = _mm_or_ps(
-            _mm_and_ps(new_index_high, gt_mask), // the new values that are lower
-            _mm_andnot_ps(gt_mask, index_high),  // false and old_index
+            _mm_and_ps(new_index_high, gt_mask),
+            _mm_andnot_ps(gt_mask, index_high),
         );
     }
 
-    // Find the largest value in the array by stacking and comparing
     let highpack = _mm_unpackhi_ps(values_high, values_high);
     let lowpack = _mm_unpacklo_ps(values_high, values_high);
 
@@ -171,20 +130,16 @@ unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
     highest = _mm_max_ps(highestpack, lowestpack);
 
-    // Create a mask for the highest value
     let high_mask = _mm_cmpeq_ps(highest, values_high);
 
-    // Replace indexes that are not the related to the highest value with the f32::MAX
     index_high = _mm_or_ps(
-        _mm_and_ps(index_high, high_mask), // the new values that are lower
-        _mm_andnot_ps(high_mask, _mm_set1_ps(std::f32::MAX)), // false and old_index
+        _mm_and_ps(index_high, high_mask),
+        _mm_andnot_ps(high_mask, _mm_set1_ps(std::f32::MAX)),
     );
 
-    // Convert values back into arrays
     let value_array = std::mem::transmute::<__m128, [f32; 4]>(values_high);
     let index_array = std::mem::transmute::<__m128, [f32; 4]>(index_high);
 
-    // Find the lowest index in the available indexes that match the highest value
     let max_index = simple_argmin(&index_array);
     let value = *value_array.get_unchecked(max_index);
     let index = *index_array.get_unchecked(max_index);

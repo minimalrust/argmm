@@ -2,9 +2,6 @@ use crate::{argmax_f32, argmin_f32};
 use std::collections::HashMap;
 
 #[inline]
-/// Helper function to divide the array into two segments. The first being the elements which cannot
-/// be ran within the SIMD function as the array size is not divisible by the SIMD vector length.
-/// The second being the elements which will be vectorized.
 pub(crate) fn split_array<T: Copy>(arr: &[T]) -> (Option<&[T]>, Option<&[T]>) {
     let n = arr.len();
 
@@ -23,7 +20,8 @@ pub(crate) fn split_array<T: Copy>(arr: &[T]) -> (Option<&[T]>, Option<&[T]>) {
         (false, true) => (Some(left_arr), None),
     }
 }
-pub fn find_price_rises(arr: &[f32], window: usize) -> Vec<(usize, usize)> {
+
+pub(crate) fn find_price_rises(arr: &[f32], window: usize) -> Vec<(usize, usize)> {
     assert!(window > 1, "Please apply a window size of 2 or more");
 
     let mut hm: HashMap<usize, usize> = HashMap::new();

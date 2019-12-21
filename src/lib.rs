@@ -2,10 +2,8 @@ mod simd;
 mod utils;
 
 pub use simd::{argmax_f32, argmax_i32, argmin_f32, argmin_i32};
-pub use utils::find_price_rises;
 
 #[inline]
-/// Locates the index of the smallest value in the array
 pub fn argmin<T: Copy + PartialOrd>(arr: &[T]) -> usize {
     let mut low_index = 0usize;
     let mut low = arr[low_index];
@@ -19,7 +17,6 @@ pub fn argmin<T: Copy + PartialOrd>(arr: &[T]) -> usize {
 }
 
 #[inline]
-/// Locates the index of the largest value in the array
 pub fn argmax<T: Copy + PartialOrd>(arr: &[T]) -> usize {
     let mut high_index = 0usize;
     let mut high = arr[high_index];
