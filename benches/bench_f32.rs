@@ -20,14 +20,22 @@ fn max_f32(c: &mut Criterion) {
     c.bench_function("argmax_f32", |b| {
         b.iter(|| argmm::argmax(black_box(data.as_slice())))
     });
-}
-
-fn simd_max_f32(c: &mut Criterion) {
     let data = get_array_f32();
     c.bench_function("argmax_simd f32", |b| {
         b.iter(|| argmm::argmax_f32(black_box(data.as_slice())))
     });
 }
 
-criterion_group!(benches, max_f32, simd_max_f32);
+fn min_f32(c: &mut Criterion) {
+    let data = get_array_f32();
+    c.bench_function("argmin_f32", |b| {
+        b.iter(|| argmm::argmin(black_box(data.as_slice())))
+    });
+    let data = get_array_f32();
+    c.bench_function("argmin_simd f32", |b| {
+        b.iter(|| argmm::argmin_f32(black_box(data.as_slice())))
+    });
+}
+
+criterion_group!(benches, max_f32, min_f32);
 criterion_main!(benches);
