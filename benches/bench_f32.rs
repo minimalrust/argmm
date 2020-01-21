@@ -12,7 +12,7 @@ use criterion::{black_box, Criterion};
 fn get_array_f32() -> Vec<f32> {
     let rng = thread_rng();
     let exp = Exp::new(1.0).unwrap();
-    rng.sample_iter(exp).take(1024).collect()
+    rng.sample_iter(exp).take(512).collect()
 }
 
 fn max_f32(c: &mut Criterion) {

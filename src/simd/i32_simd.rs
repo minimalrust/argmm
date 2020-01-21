@@ -24,7 +24,6 @@ pub fn argmin_i32(arr: &[i32]) -> Option<usize> {
 
 #[inline]
 unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
-
     let offset = _mm_set1_epi32(rem_offset as i32);
     let mut index_low = _mm_add_epi32(_mm_set_epi32(3, 2, 1, 0), offset);
 
@@ -34,7 +33,6 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     let mut values_low = _mm_loadu_si128(sim_arr.get_unchecked(0..4).as_ptr() as *const __m128i);
 
     for i in (0..sim_arr.len()).step_by(4).skip(1) {
-
         new_index_low = _mm_add_epi32(new_index_low, increment);
 
         let new_values =
@@ -100,7 +98,6 @@ pub fn argmax_i32(arr: &[i32]) -> Option<usize> {
 
 #[inline]
 unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
-
     let offset = _mm_set1_epi32(rem_offset as i32);
     let mut index_high = _mm_add_epi32(_mm_set_epi32(3, 2, 1, 0), offset);
     let mut new_index_high = index_high;
@@ -110,7 +107,6 @@ unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     let mut values_high = _mm_loadu_si128(sim_arr.get_unchecked(0..4).as_ptr() as *const __m128i);
 
     for i in (0..sim_arr.len()).step_by(4).skip(1) {
-
         new_index_high = _mm_add_epi32(new_index_high, increment);
 
         let new_values =

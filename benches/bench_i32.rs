@@ -12,7 +12,7 @@ use rand_distr::{Distribution, Exp, Uniform};
 fn get_array_i32() -> Vec<i32> {
     let rng = thread_rng();
     let uni = Uniform::new_inclusive(-100_000, 100_000);
-    rng.sample_iter(uni).take(1024).collect()
+    rng.sample_iter(uni).take(512).collect()
 }
 
 fn min_i32(c: &mut Criterion) {
