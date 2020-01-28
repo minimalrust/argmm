@@ -30,13 +30,13 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     let increment = _mm_set1_epi32(4);
     let mut new_index_low = index_low;
 
-    let mut values_low = _mm_loadu_si128(sim_arr.get_unchecked(0..4).as_ptr() as *const __m128i);
+    let mut values_low = _mm_loadu_si128(sim_arr as *const _ as *const __m128i);
 
-    for i in (0..sim_arr.len()).step_by(4).skip(1) {
+    sim_arr.iter().step_by(4).skip(1).for_each(|step| {
         new_index_low = _mm_add_epi32(new_index_low, increment);
 
         let new_values =
-            _mm_loadu_si128(sim_arr.get_unchecked(i..i + 4).as_ptr() as *const __m128i);
+            _mm_loadu_si128(step as *const _ as *const __m128i);
         let lt_mask = _mm_cmplt_epi32(new_values, values_low);
 
         values_low = _mm_or_si128(
@@ -47,7 +47,7 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
             _mm_and_si128(new_index_low, lt_mask),
             _mm_andnot_si128(lt_mask, index_low),
         );
-    }
+    });
 
     let highpack = _mm_unpackhi_epi32(values_low, values_low);
     let lowpack = _mm_unpacklo_epi32(values_low, values_low);
@@ -104,13 +104,13 @@ unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
 
     let increment = _mm_set1_epi32(4);
 
-    let mut values_high = _mm_loadu_si128(sim_arr.get_unchecked(0..4).as_ptr() as *const __m128i);
+    let mut values_high = _mm_loadu_si128(sim_arr as *const _ as *const __m128i);
 
-    for i in (0..sim_arr.len()).step_by(4).skip(1) {
+    sim_arr.iter().step_by(4).skip(1).for_each(|step| {
         new_index_high = _mm_add_epi32(new_index_high, increment);
 
         let new_values =
-            _mm_loadu_si128(sim_arr.get_unchecked(i..i + 4).as_ptr() as *const __m128i);
+            _mm_loadu_si128(step as *const _ as *const __m128i);
         let gt_mask = _mm_cmpgt_epi32(new_values, values_high);
 
         values_high = _mm_or_si128(
@@ -121,7 +121,7 @@ unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
             _mm_and_si128(new_index_high, gt_mask),
             _mm_andnot_si128(gt_mask, index_high),
         );
-    }
+    });
 
     let highpack = _mm_unpackhi_epi32(values_high, values_high);
     let lowpack = _mm_unpacklo_epi32(values_high, values_high);

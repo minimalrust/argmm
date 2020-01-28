@@ -2,7 +2,6 @@ use crate::utils::split_array;
 use crate::{argmax as simple_argmax, argmin as simple_argmin};
 use std::arch::x86_64::*;
 
-#[inline]
 pub fn argmin_f32(arr: &[f32]) -> Option<usize> {
     match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
@@ -22,22 +21,19 @@ pub fn argmin_f32(arr: &[f32]) -> Option<usize> {
     }
 }
 
-#[inline]
-unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
-
+pub unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
     let offset = _mm_set1_ps(rem_offset as f32);
-    let mut index_low =_mm_add_ps( _mm_set_ps(3.0, 2.0, 1.0, 0.0), offset);
+    let mut index_low = _mm_add_ps(_mm_set_ps(3.0, 2.0, 1.0, 0.0), offset);
 
     let increment = _mm_set1_ps(4.0);
     let mut new_index_low = index_low;
 
     let mut values_low = _mm_loadu_ps(sim_arr.get_unchecked(0));
 
-    for i in (0..sim_arr.len()).step_by(4).skip(1) {
-
+    sim_arr.iter().step_by(4).skip(1).for_each(|step| {
         new_index_low = _mm_add_ps(new_index_low, increment);
 
-        let new_values = _mm_loadu_ps(sim_arr.get_unchecked(i));
+        let new_values = _mm_loadu_ps(step as *const _);
         let lt_mask = _mm_cmplt_ps(new_values, values_low);
 
         values_low = _mm_min_ps(new_values, values_low);
@@ -45,7 +41,7 @@ unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
             _mm_and_ps(new_index_low, lt_mask),
             _mm_andnot_ps(lt_mask, index_low),
         );
-    }
+    });
 
     let highpack = _mm_unpackhi_ps(values_low, values_low);
     let lowpack = _mm_unpacklo_ps(values_low, values_low);
@@ -74,7 +70,6 @@ unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
     (value, index as usize)
 }
 
-#[inline]
 pub fn argmax_f32(arr: &[f32]) -> Option<usize> {
     match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
@@ -94,9 +89,7 @@ pub fn argmax_f32(arr: &[f32]) -> Option<usize> {
     }
 }
 
-#[inline]
-unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
-
+pub unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
     let offset = _mm_set1_ps(rem_offset as f32);
     let mut index_high = _mm_add_ps(_mm_set_ps(3.0, 2.0, 1.0, 0.0), offset);
     let mut new_index_high = index_high;
@@ -105,11 +98,10 @@ unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
     let mut values_high = _mm_loadu_ps(sim_arr.get_unchecked(0));
 
-    for i in (0..sim_arr.len()).step_by(4).skip(1) {
-
+    let _ = sim_arr.iter().step_by(4).skip(1).for_each(|step| {
         new_index_high = _mm_add_ps(new_index_high, increment);
 
-        let new_values = _mm_loadu_ps(sim_arr.get_unchecked(i));
+        let new_values = _mm_loadu_ps(step as *const _);
         let gt_mask = _mm_cmpgt_ps(new_values, values_high);
 
         values_high = _mm_max_ps(new_values, values_high);
@@ -117,7 +109,7 @@ unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
             _mm_and_ps(new_index_high, gt_mask),
             _mm_andnot_ps(gt_mask, index_high),
         );
-    }
+    });
 
     let highpack = _mm_unpackhi_ps(values_high, values_high);
     let lowpack = _mm_unpacklo_ps(values_high, values_high);
