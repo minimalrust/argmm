@@ -1,7 +1,7 @@
 mod simd;
 mod utils;
 
-pub use simd::{argmax_f32, argmax_i32, argmin_f32, argmin_i32, core_argmax, core_argmin};
+pub use simd::{argmax_f32, argmax_i32, argmin_f32, argmin_i32};
 
 #[inline]
 pub fn argmin<T: Copy + PartialOrd>(arr: &[T]) -> usize {

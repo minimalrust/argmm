@@ -21,7 +21,7 @@ pub fn argmin_f32(arr: &[f32]) -> Option<usize> {
     }
 }
 
-pub unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
+unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
     let offset = _mm_set1_ps(rem_offset as f32);
     let mut index_low = _mm_add_ps(_mm_set_ps(3.0, 2.0, 1.0, 0.0), offset);
 
@@ -89,7 +89,7 @@ pub fn argmax_f32(arr: &[f32]) -> Option<usize> {
     }
 }
 
-pub unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
+unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
     let offset = _mm_set1_ps(rem_offset as f32);
     let mut index_high = _mm_add_ps(_mm_set_ps(3.0, 2.0, 1.0, 0.0), offset);
     let mut new_index_high = index_high;
