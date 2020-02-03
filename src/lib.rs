@@ -1,7 +1,42 @@
 mod simd;
 mod utils;
 
-pub use simd::{argmax_f32, argmax_i32, argmin_f32, argmin_i32};
+pub use simd::{argmax_f32, argmin_f32};
+
+pub trait ArgMinMax {
+    fn argmin(&self) -> Option<usize>;
+    fn argmax(&self) -> Option<usize>;
+}
+
+impl ArgMinMax for Vec<f32> {
+    fn argmin(&self) -> Option<usize> {
+        argmin_f32(self)
+    }
+
+    fn argmax(&self) -> Option<usize> {
+        argmax_f32(self)
+    }
+}
+
+impl ArgMinMax for &[f32] {
+    fn argmin(&self) -> Option<usize> {
+        argmin_f32(self)
+    }
+
+    fn argmax(&self) -> Option<usize> {
+        argmax_f32(self)
+    }
+}
+
+impl ArgMinMax for [f32] {
+    fn argmin(&self) -> Option<usize> {
+        argmin_f32(self)
+    }
+
+    fn argmax(&self) -> Option<usize> {
+        argmax_f32(self)
+    }
+}
 
 #[inline]
 pub fn argmin<T: Copy + PartialOrd>(arr: &[T]) -> usize {

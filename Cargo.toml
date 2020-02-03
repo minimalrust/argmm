@@ -14,10 +14,3 @@ rand_distr = "0.2.2"
 [[bench]]
 name = "bench_f32"
 harness = false
-
-[[bench]]
-name = "bench_i32"
-harness = false
-
-[profile.release]
-debug = true
