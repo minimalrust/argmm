@@ -10,7 +10,7 @@ fn get_array_f32() -> Vec<f32> {
 
 fn main() {
     let data = get_array_f32();
-    let res = &data.argmin();
-    let res2 = &data.argmax();
+    let res = data.argmin();
+    let res2 = data.argmax();
     println!("{:?} / {:?}", res, res2);
 }

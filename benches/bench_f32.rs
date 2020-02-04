@@ -6,7 +6,7 @@ extern crate criterion;
 use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Exp, Uniform};
 
-use argmm;
+use argmm::{ArgMinMax};
 use criterion::{black_box, Criterion};
 
 fn get_array_f32() -> Vec<f32> {
@@ -22,7 +22,7 @@ fn max_f32(c: &mut Criterion) {
     });
     let data = get_array_f32();
     c.bench_function("argmax_simd f32", |b| {
-        b.iter(|| argmm::argmax_f32(black_box(data.as_slice())))
+        b.iter(|| black_box(data.as_slice().argmax()))
     });
 }
 
@@ -33,7 +33,7 @@ fn min_f32(c: &mut Criterion) {
     });
     let data = get_array_f32();
     c.bench_function("argmin_simd f32", |b| {
-        b.iter(|| argmm::argmin_f32(black_box(data.as_slice())))
+        b.iter(|| black_box(data.as_slice().argmin()))
     });
 }
 
