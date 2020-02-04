@@ -1,10 +1,8 @@
-#![allow(unused)]
-
 #[macro_use]
 extern crate criterion;
 
 use rand::{thread_rng, Rng};
-use rand_distr::{Distribution, Exp, Uniform};
+use rand_distr::Exp;
 
 use argmm::ArgMinMax;
 use criterion::{black_box, Criterion};
