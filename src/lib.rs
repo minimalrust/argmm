@@ -8,35 +8,24 @@ pub trait ArgMinMax {
     fn argmax(&self) -> Option<usize>;
 }
 
-impl ArgMinMax for Vec<f32> {
-    fn argmin(&self) -> Option<usize> {
-        argmin_f32(self)
-    }
+macro_rules! impl_argmm {
+    ($b:ty) => {
+        impl ArgMinMax for $b {
 
-    fn argmax(&self) -> Option<usize> {
-        argmax_f32(self)
+            fn argmin(&self) -> Option<usize> {
+               argmin_f32(self)
+            }
+
+            fn argmax(&self) -> Option<usize> {
+               argmax_f32(self)
+            }
+        }
     }
 }
 
-impl ArgMinMax for &[f32] {
-    fn argmin(&self) -> Option<usize> {
-        argmin_f32(self)
-    }
-
-    fn argmax(&self) -> Option<usize> {
-        argmax_f32(self)
-    }
-}
-
-impl ArgMinMax for [f32] {
-    fn argmin(&self) -> Option<usize> {
-        argmin_f32(self)
-    }
-
-    fn argmax(&self) -> Option<usize> {
-        argmax_f32(self)
-    }
-}
+impl_argmm!(Vec<f32>);
+impl_argmm!(&[f32]);
+impl_argmm!([f32]);
 
 #[inline]
 pub fn argmin<T: Copy + PartialOrd>(arr: &[T]) -> usize {

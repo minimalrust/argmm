@@ -3,6 +3,11 @@ use crate::{argmax as simple_argmax, argmin as simple_argmin};
 use std::arch::x86_64::*;
 
 pub fn argmin_f32(arr: &[f32]) -> Option<usize> {
+
+    if !is_x86_feature_detected!("sse") {
+        return Some(simple_argmin(arr))
+    }
+
     match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
             let rem_min_index = simple_argmin(rem);
@@ -71,6 +76,11 @@ unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 }
 
 pub fn argmax_f32(arr: &[f32]) -> Option<usize> {
+
+    if !is_x86_feature_detected!("sse") {
+        return Some(simple_argmax(arr))
+    }
+
     match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
             let rem_min_index = simple_argmax(rem);
