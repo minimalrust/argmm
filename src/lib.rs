@@ -9,8 +9,8 @@ pub trait ArgMinMax {
 }
 
 macro_rules! impl_argmm {
-    ($b:ty) => {
-        impl ArgMinMax for $b {
+    ($($b:ty),*) => {
+        $(impl ArgMinMax for $b {
 
             fn argmin(&self) -> Option<usize> {
                argmin_f32(self)
@@ -19,13 +19,11 @@ macro_rules! impl_argmm {
             fn argmax(&self) -> Option<usize> {
                argmax_f32(self)
             }
-        }
+        })*
     }
 }
 
-impl_argmm!(Vec<f32>);
-impl_argmm!(&[f32]);
-impl_argmm!([f32]);
+impl_argmm!(Vec<f32>, &[f32], [f32]);
 
 #[inline]
 pub fn argmin<T: Copy + PartialOrd>(arr: &[T]) -> usize {
