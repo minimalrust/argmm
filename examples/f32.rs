@@ -1,4 +1,4 @@
-use argmm::{argmax_f32, argmin_f32};
+use argmm::ArgMinMax;
 use rand::{thread_rng, Rng};
 use rand_distr::Exp;
 
@@ -10,7 +10,7 @@ fn get_array_f32() -> Vec<f32> {
 
 fn main() {
     let data = get_array_f32();
-    let res = argmin_f32(&data).unwrap();
-    let res2 = argmax_f32(&data).unwrap();
+    let res = &data.argmin();
+    let res2 = &data.argmax();
     println!("{:?} / {:?}", res, res2);
 }

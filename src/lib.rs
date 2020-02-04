@@ -4,6 +4,10 @@ mod utils;
 mod simd;
 #[cfg(target_feature = "sse")]
 pub use simd::{argmax_f32, argmin_f32};
+#[cfg(not(target_feature = "sse"))]
+pub use self::{argmin as argmin_f32, argmax as argmax_f32};
+
+
 
 pub trait ArgMinMax {
     fn argmin(&self) -> Option<usize>;
@@ -15,12 +19,12 @@ macro_rules! impl_argmm {
         $(impl ArgMinMax for $b {
 
             fn argmin(&self) -> Option<usize> {
-            #[cfg(not(target_feature = "sse"))] return argmin(self);
+            #[cfg(not(target_feature = "sse"))] return Some(argmin(self));
             #[cfg(target_feature = "sse")] return argmin_f32(self);
             }
 
             fn argmax(&self) -> Option<usize> {
-            #[cfg(not(target_feature = "sse"))] return argmax(self);
+            #[cfg(not(target_feature = "sse"))] return Some(argmax(self));
             #[cfg(target_feature = "sse")] return argmax_f32(self);
             }
         })*
