@@ -6,7 +6,7 @@ extern crate criterion;
 use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Exp, Uniform};
 
-use argmm::{ArgMinMax};
+use argmm::ArgMinMax;
 use criterion::{black_box, Criterion};
 
 fn get_array_f32() -> Vec<f32> {

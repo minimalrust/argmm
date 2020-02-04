@@ -98,7 +98,7 @@ unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
     let mut values_high = _mm_loadu_ps(sim_arr.get_unchecked(0));
 
-    let _ = sim_arr.iter().step_by(4).skip(1).for_each(|step| {
+    sim_arr.iter().step_by(4).skip(1).for_each(|step| {
         new_index_high = _mm_add_ps(new_index_high, increment);
 
         let new_values = _mm_loadu_ps(step as *const _);
