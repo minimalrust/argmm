@@ -1,5 +1,5 @@
-use super::generic::{argmax as simple_argmax, argmin as simple_argmin};
-use super::tasks::split_array;
+use crate::generic::{argmax as simple_argmax, argmin as simple_argmin};
+use crate::tasks::split_array;
 use std::arch::x86_64::*;
 
 pub fn argmin_f32(arr: &[f32]) -> Option<usize> {
