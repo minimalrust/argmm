@@ -32,7 +32,7 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
 
     let mut values_low = _mm_loadu_si128(sim_arr as *const _ as *const __m128i);
 
-    sim_arr.chunks(4).skip(1).for_each(|step| {
+    sim_arr.chunks_exact(4).skip(1).for_each(|step| {
         new_index_low = _mm_add_epi32(new_index_low, increment);
 
         let new_values =
@@ -106,7 +106,7 @@ unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
 
     let mut values_high = _mm_loadu_si128(sim_arr as *const _ as *const __m128i);
 
-    sim_arr.chunks(4).skip(1).for_each(|step| {
+    sim_arr.chunks_exact(4).skip(1).for_each(|step| {
         new_index_high = _mm_add_epi32(new_index_high, increment);
 
         let new_values =

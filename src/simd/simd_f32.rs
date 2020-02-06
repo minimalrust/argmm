@@ -30,7 +30,7 @@ unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
     let mut values_low = _mm_loadu_ps(sim_arr.get_unchecked(0));
 
-    sim_arr.chunks(4).skip(1).for_each(|step| {
+    sim_arr.chunks_exact(4).skip(1).for_each(|step| {
         new_index_low = _mm_add_ps(new_index_low, increment);
 
         let new_values = _mm_loadu_ps(&step[0] as *const _);
@@ -98,7 +98,7 @@ unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
     let mut values_high = _mm_loadu_ps(sim_arr.get_unchecked(0));
 
-    sim_arr.chunks(4).skip(1).for_each(|step| {
+    sim_arr.chunks_exact(4).skip(1).for_each(|step| {
         new_index_high = _mm_add_ps(new_index_high, increment);
 
         let new_values = _mm_loadu_ps(&step[0] as *const _);
