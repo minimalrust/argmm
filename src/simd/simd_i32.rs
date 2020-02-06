@@ -1,18 +1,19 @@
-use crate::generic::{argmax as simple_argmax, argmin as simple_argmin};
+use crate::generic::{simple_argmax, simple_argmin};
 use crate::tasks::split_array;
+use crate::typed::{simple_argmax_i32, simple_argmin_i32};
 use std::arch::x86_64::*;
 
 pub fn argmin_i32(arr: &[i32]) -> Option<usize> {
     match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
-            let rem_min_index = simple_argmin(rem);
+            let rem_min_index = simple_argmin_i32(rem);
             let rem_result = (rem[rem_min_index], rem_min_index);
             let sim_result = unsafe { core_argmin(sim, rem.len()) };
             let final_test = &[rem_result, sim_result];
             let final_index = simple_argmin(final_test);
             Some(final_test[final_index].1)
         }
-        (Some(rem), None) => Some(simple_argmin(rem)),
+        (Some(rem), None) => Some(simple_argmin_i32(rem)),
         (None, Some(sim)) => {
             let sim_result = unsafe { core_argmin(sim, 0) };
             Some(sim_result.1)
@@ -33,8 +34,7 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     sim_arr.chunks_exact(4).skip(1).for_each(|step| {
         new_index_low = _mm_add_epi32(new_index_low, increment);
 
-        let new_values =
-            _mm_loadu_si128(&step[0] as *const _ as *const __m128i);
+        let new_values = _mm_loadu_si128(&step[0] as *const _ as *const __m128i);
         let lt_mask = _mm_cmplt_epi32(new_values, values_low);
 
         values_low = _mm_or_si128(
@@ -67,7 +67,7 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     let value_array = std::mem::transmute::<__m128i, [i32; 4]>(values_low);
     let index_array = std::mem::transmute::<__m128i, [i32; 4]>(index_low);
 
-    let min_index = simple_argmin(&index_array);
+    let min_index = simple_argmin_i32(&index_array);
     let value = *value_array.get_unchecked(min_index);
     let index = *index_array.get_unchecked(min_index);
 
@@ -77,14 +77,14 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
 pub fn argmax_i32(arr: &[i32]) -> Option<usize> {
     match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
-            let rem_min_index = simple_argmax(rem);
+            let rem_min_index = simple_argmax_i32(rem);
             let rem_result = (rem[rem_min_index], rem_min_index);
             let sim_result = unsafe { core_argmax(sim, rem.len()) };
             let final_test = &[rem_result, sim_result];
             let final_index = simple_argmax(final_test);
             Some(final_test[final_index].1)
         }
-        (Some(rem), None) => Some(simple_argmax(rem)),
+        (Some(rem), None) => Some(simple_argmax_i32(rem)),
         (None, Some(sim)) => {
             let sim_result = unsafe { core_argmax(sim, 0) };
             Some(sim_result.1)
@@ -105,8 +105,7 @@ unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     sim_arr.chunks_exact(4).skip(1).for_each(|step| {
         new_index_high = _mm_add_epi32(new_index_high, increment);
 
-        let new_values =
-            _mm_loadu_si128(&step[0] as *const _ as *const __m128i);
+        let new_values = _mm_loadu_si128(&step[0] as *const _ as *const __m128i);
         let gt_mask = _mm_cmpgt_epi32(new_values, values_high);
 
         values_high = _mm_or_si128(
@@ -139,7 +138,7 @@ unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     let value_array = std::mem::transmute::<__m128i, [i32; 4]>(values_high);
     let index_array = std::mem::transmute::<__m128i, [i32; 4]>(index_high);
 
-    let min_index = simple_argmin(&index_array);
+    let min_index = simple_argmin_i32(&index_array);
     let value = *value_array.get_unchecked(min_index);
     let index = *index_array.get_unchecked(min_index);
 

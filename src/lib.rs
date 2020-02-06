@@ -1,17 +1,14 @@
-mod generic;
+pub mod generic;
 #[cfg(target_feature = "sse")]
 mod simd;
 #[cfg(target_feature = "sse")]
 mod tasks;
+pub mod typed;
 
-#[cfg(not(target_feature = "sse"))]
-pub use generic::{argmax as argmax_f32, argmin as argmin_f32};
-pub use generic::{argmax, argmin};
 #[cfg(target_feature = "sse")]
-pub use simd::{
-    simd_f32,
-    simd_i32
-};
+pub use simd::{simd_f32, simd_i32};
+#[cfg(not(target_feature = "sse"))]
+pub use typed::{simple_argmax_f32, simple_argmax_i32, simple_argmin_f32, simple_argmin_i32};
 
 pub trait ArgMinMax {
     fn argmin(&self) -> Option<usize>;
@@ -23,12 +20,12 @@ macro_rules! impl_argmm_f32 {
         $(impl ArgMinMax for $b {
 
             fn argmin(&self) -> Option<usize> {
-            #[cfg(not(target_feature = "sse"))] return Some(argmin(self));
+            #[cfg(not(target_feature = "sse"))] return Some(simple_argmin_f32(self));
             #[cfg(target_feature = "sse")] return simd_f32::argmin_f32(self);
             }
 
             fn argmax(&self) -> Option<usize> {
-            #[cfg(not(target_feature = "sse"))] return Some(argmax(self));
+            #[cfg(not(target_feature = "sse"))] return Some(simple_argmax_f32(self));
             #[cfg(target_feature = "sse")] return simd_f32::argmax_f32(self);
             }
         })*
@@ -40,12 +37,12 @@ macro_rules! impl_argmm_i32 {
         $(impl ArgMinMax for $b {
 
             fn argmin(&self) -> Option<usize> {
-            #[cfg(not(target_feature = "sse"))] return Some(argmin(self));
+            #[cfg(not(target_feature = "sse"))] return Some(simple_argmin_i32(self));
             #[cfg(target_feature = "sse")] return simd_i32::argmin_i32(self);
             }
 
             fn argmax(&self) -> Option<usize> {
-            #[cfg(not(target_feature = "sse"))] return Some(argmax(self));
+            #[cfg(not(target_feature = "sse"))] return Some(simple_argmax_i32(self));
             #[cfg(target_feature = "sse")] return simd_i32::argmax_i32(self);
             }
         })*

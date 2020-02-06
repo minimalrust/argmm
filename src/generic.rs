@@ -1,5 +1,5 @@
 #[inline]
-pub fn argmin<T: Copy + PartialOrd>(arr: &[T]) -> usize {
+pub fn simple_argmin<T: Copy + PartialOrd>(arr: &[T]) -> usize {
     let mut low_index = 0usize;
     let mut low = arr[low_index];
     for (i, item) in arr.iter().enumerate() {
@@ -12,7 +12,7 @@ pub fn argmin<T: Copy + PartialOrd>(arr: &[T]) -> usize {
 }
 
 #[inline]
-pub fn argmax<T: Copy + PartialOrd>(arr: &[T]) -> usize {
+pub fn simple_argmax<T: Copy + PartialOrd>(arr: &[T]) -> usize {
     let mut high_index = 0usize;
     let mut high = arr[high_index];
     for (i, item) in arr.iter().enumerate() {
