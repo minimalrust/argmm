@@ -2,7 +2,6 @@ use crate::generic::{argmax as simple_argmax, argmin as simple_argmin};
 use crate::tasks::split_array;
 use std::arch::x86_64::*;
 
-#[inline]
 pub fn argmin_i32(arr: &[i32]) -> Option<usize> {
     match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
@@ -22,7 +21,6 @@ pub fn argmin_i32(arr: &[i32]) -> Option<usize> {
     }
 }
 
-#[inline]
 unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     let offset = _mm_set1_epi32(rem_offset as i32);
     let mut index_low = _mm_add_epi32(_mm_set_epi32(3, 2, 1, 0), offset);
@@ -76,7 +74,6 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     (value, index as usize)
 }
 
-#[inline]
 pub fn argmax_i32(arr: &[i32]) -> Option<usize> {
     match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
@@ -96,7 +93,6 @@ pub fn argmax_i32(arr: &[i32]) -> Option<usize> {
     }
 }
 
-#[inline]
 unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     let offset = _mm_set1_epi32(rem_offset as i32);
     let mut index_high = _mm_add_epi32(_mm_set_epi32(3, 2, 1, 0), offset);
