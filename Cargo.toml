@@ -3,10 +3,14 @@ name = "argmm"
 version = "0.1.0"
 authors = ["minimalrust <minimalrustdev@gmail.com>"]
 edition = "2018"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/minimalrust/argmm.git"
+description = "Argmin and argmax with SIMD support for i32 and f32"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
+[dev-dependencies]
 criterion = "0.3.0"
 rand = "0.7.2"
 rand_distr = "0.2.2"

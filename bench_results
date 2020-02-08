@@ -1,0 +1,106 @@
+
+running 6 tests
+test simd::simd_f32::tests::test_both_versions_return_the_same_results ... ignored
+test simd::simd_f32::tests::test_first_index_is_returned_when_identical_values_found ... ignored
+test simd::simd_f32::tests::test_using_a_random_input_returns_the_same_result ... ignored
+test simd::simd_i32::tests::test_both_versions_return_the_same_results ... ignored
+test simd::simd_i32::tests::test_first_index_is_returned_when_identical_values_found ... ignored
+test simd::simd_i32::tests::test_using_a_random_input_returns_the_same_result ... ignored
+
+test result: ok. 0 passed; 0 failed; 6 ignored; 0 measured; 0 filtered out
+
+Gnuplot not found, using plotters backend
+Benchmarking simple_argmax_f32
+Benchmarking simple_argmax_f32: Warming up for 3.0000 s
+Benchmarking simple_argmax_f32: Collecting 100 samples in estimated 5.0016 s (9.4M iterations)
+Benchmarking simple_argmax_f32: Analyzing
+simple_argmax_f32       time:   [531.04 ns 531.54 ns 532.24 ns]
+                        change: [-2.4341% -2.2809% -2.1316%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 8 outliers among 100 measurements (8.00%)
+  4 (4.00%) high mild
+  4 (4.00%) high severe
+
+Benchmarking argmax_simd_f32
+Benchmarking argmax_simd_f32: Warming up for 3.0000 s
+Benchmarking argmax_simd_f32: Collecting 100 samples in estimated 5.0001 s (32M iterations)
+Benchmarking argmax_simd_f32: Analyzing
+argmax_simd_f32         time:   [156.97 ns 157.08 ns 157.21 ns]
+                        change: [-0.0856% +0.0762% +0.2402%] (p = 0.36 > 0.05)
+                        No change in performance detected.
+Found 7 outliers among 100 measurements (7.00%)
+  2 (2.00%) low mild
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking simple_argmin_f32
+Benchmarking simple_argmin_f32: Warming up for 3.0000 s
+Benchmarking simple_argmin_f32: Collecting 100 samples in estimated 5.0023 s (9.3M iterations)
+Benchmarking simple_argmin_f32: Analyzing
+simple_argmin_f32       time:   [536.58 ns 536.91 ns 537.30 ns]
+                        change: [-0.8431% -0.6832% -0.5461%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 6 outliers among 100 measurements (6.00%)
+  4 (4.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking argmin_simd_f32
+Benchmarking argmin_simd_f32: Warming up for 3.0000 s
+Benchmarking argmin_simd_f32: Collecting 100 samples in estimated 5.0001 s (32M iterations)
+Benchmarking argmin_simd_f32: Analyzing
+argmin_simd_f32         time:   [157.20 ns 157.30 ns 157.41 ns]
+                        change: [-0.4169% -0.1572% +0.0351%] (p = 0.20 > 0.05)
+                        No change in performance detected.
+Found 10 outliers among 100 measurements (10.00%)
+  2 (2.00%) low mild
+  4 (4.00%) high mild
+  4 (4.00%) high severe
+
+Gnuplot not found, using plotters backend
+Benchmarking simple_argmax_i32
+Benchmarking simple_argmax_i32: Warming up for 3.0000 s
+Benchmarking simple_argmax_i32: Collecting 100 samples in estimated 5.0004 s (14M iterations)
+Benchmarking simple_argmax_i32: Analyzing
+simple_argmax_i32       time:   [349.76 ns 350.06 ns 350.42 ns]
+                        change: [-0.8587% -0.6708% -0.4993%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 6 outliers among 100 measurements (6.00%)
+  2 (2.00%) low mild
+  2 (2.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking argmax_simd_i32
+Benchmarking argmax_simd_i32: Warming up for 3.0000 s
+Benchmarking argmax_simd_i32: Collecting 100 samples in estimated 5.0007 s (26M iterations)
+Benchmarking argmax_simd_i32: Analyzing
+argmax_simd_i32         time:   [191.26 ns 191.45 ns 191.67 ns]
+                        change: [-0.1519% +0.0197% +0.1825%] (p = 0.83 > 0.05)
+                        No change in performance detected.
+Found 10 outliers among 100 measurements (10.00%)
+  1 (1.00%) low mild
+  6 (6.00%) high mild
+  3 (3.00%) high severe
+
+Benchmarking simple_argmin_i32
+Benchmarking simple_argmin_i32: Warming up for 3.0000 s
+Benchmarking simple_argmin_i32: Collecting 100 samples in estimated 5.0009 s (15M iterations)
+Benchmarking simple_argmin_i32: Analyzing
+simple_argmin_i32       time:   [342.67 ns 343.02 ns 343.40 ns]
+                        change: [-0.1522% -0.0032% +0.1415%] (p = 0.96 > 0.05)
+                        No change in performance detected.
+Found 6 outliers among 100 measurements (6.00%)
+  1 (1.00%) low severe
+  2 (2.00%) low mild
+  3 (3.00%) high mild
+
+Benchmarking argmin_simd_i32
+Benchmarking argmin_simd_i32: Warming up for 3.0000 s
+Benchmarking argmin_simd_i32: Collecting 100 samples in estimated 5.0002 s (25M iterations)
+Benchmarking argmin_simd_i32: Analyzing
+argmin_simd_i32         time:   [203.17 ns 203.30 ns 203.46 ns]
+                        change: [+1.2991% +1.6531% +2.0057%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 11 outliers among 100 measurements (11.00%)
+  5 (5.00%) high mild
+  6 (6.00%) high severe
+

@@ -15,22 +15,22 @@ fn get_array_i32() -> Vec<i32> {
 
 fn max_i32(c: &mut Criterion) {
     let data = get_array_i32();
-    c.bench_function("argmax_i32", |b| {
-        b.iter(|| argmm::typed::simple_argmax_i32(black_box(data.as_slice())))
+    c.bench_function("simple_argmax_i32", |b| {
+        b.iter(|| argmm::generic::simple_argmax(black_box(data.as_slice())))
     });
     let data = get_array_i32();
-    c.bench_function("argmax_simd i32", |b| {
+    c.bench_function("argmax_simd_i32", |b| {
         b.iter(|| black_box(data.as_slice().argmax()))
     });
 }
 
 fn min_i32(c: &mut Criterion) {
     let data = get_array_i32();
-    c.bench_function("argmin_i32", |b| {
-        b.iter(|| argmm::typed::simple_argmin_i32(black_box(data.as_slice())))
+    c.bench_function("simple_argmin_i32", |b| {
+        b.iter(|| argmm::generic::simple_argmin(black_box(data.as_slice())))
     });
     let data = get_array_i32();
-    c.bench_function("argmin_simd i32", |b| {
+    c.bench_function("argmin_simd_i32", |b| {
         b.iter(|| black_box(data.as_slice().argmin()))
     });
 }

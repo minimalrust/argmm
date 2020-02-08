@@ -3,7 +3,7 @@ pub mod generic;
 mod simd;
 #[cfg(target_feature = "sse")]
 mod task;
-pub mod typed;
+mod typed;
 
 #[cfg(target_feature = "sse")]
 pub use simd::{simd_f32, simd_i32};
