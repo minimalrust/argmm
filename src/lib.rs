@@ -2,7 +2,7 @@ pub mod generic;
 #[cfg(target_feature = "sse")]
 mod simd;
 #[cfg(target_feature = "sse")]
-mod tasks;
+mod task;
 pub mod typed;
 
 #[cfg(target_feature = "sse")]

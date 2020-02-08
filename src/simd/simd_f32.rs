@@ -1,5 +1,5 @@
 use crate::generic::{simple_argmax, simple_argmin};
-use crate::tasks::split_array;
+use crate::task::split_array;
 use crate::typed::{simple_argmax_f32, simple_argmin_f32};
 use std::arch::x86_64::*;
 
@@ -202,20 +202,5 @@ mod tests {
         let argmax_simd_index = argmax_f32(&data).unwrap();
         assert_eq!(argmax_index, argmax_simd_index);
         assert_eq!(argmax_index, 5);
-    }
-
-    #[test]
-    fn test_infinity_and_nans_are_sorted_correctly() {
-        let data = [std::f32::INFINITY, std::f32::NAN, std::f32::NEG_INFINITY];
-
-        let argmin_index = simple_argmin(&data);
-        let argmin_simd_index = argmin_f32(&data).unwrap();
-        assert_eq!(argmin_index, argmin_simd_index);
-        assert_eq!(argmin_index, 2);
-
-        let argmax_index = simple_argmax(&data);
-        let argmax_simd_index = argmax_f32(&data).unwrap();
-        assert_eq!(argmax_index, argmax_simd_index);
-        assert_eq!(argmax_index, 0);
     }
 }

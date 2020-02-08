@@ -1,5 +1,5 @@
 use crate::generic::{simple_argmax, simple_argmin};
-use crate::tasks::split_array;
+use crate::task::split_array;
 use crate::typed::{simple_argmax_i32, simple_argmin_i32};
 use std::arch::x86_64::*;
 
