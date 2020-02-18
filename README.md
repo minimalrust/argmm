@@ -2,6 +2,14 @@
 
 Argmin/max with SIMD support for i32 and f32 arrays and vectors.
 
+## Installing
+
+Add the following to your Cargo.toml
+
+```
+argmm = "0.1.0"
+```
+
 ## Getting started
 
 You can use the extention trait which will take advantage of SIMD if available
