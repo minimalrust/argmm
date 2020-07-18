@@ -29,12 +29,12 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
     let increment = _mm_set1_epi32(4);
     let mut new_index_low = index_low;
 
-    let mut values_low = _mm_loadu_si128(sim_arr as *const _ as *const __m128i);
+    let mut values_low = _mm_loadu_si128(sim_arr.as_ptr() as *const __m128i);
 
     sim_arr.chunks_exact(4).skip(1).for_each(|step| {
         new_index_low = _mm_add_epi32(new_index_low, increment);
 
-        let new_values = _mm_loadu_si128(&step[0] as *const _ as *const __m128i);
+        let new_values = _mm_loadu_si128(step.as_ptr() as *const __m128i);
         let lt_mask = _mm_cmplt_epi32(new_values, values_low);
 
         values_low = _mm_or_si128(
@@ -100,12 +100,12 @@ unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
 
     let increment = _mm_set1_epi32(4);
 
-    let mut values_high = _mm_loadu_si128(sim_arr as *const _ as *const __m128i);
+    let mut values_high = _mm_loadu_si128(sim_arr.as_ptr() as *const __m128i);
 
     sim_arr.chunks_exact(4).skip(1).for_each(|step| {
         new_index_high = _mm_add_epi32(new_index_high, increment);
 
-        let new_values = _mm_loadu_si128(&step[0] as *const _ as *const __m128i);
+        let new_values = _mm_loadu_si128(step.as_ptr() as *const __m128i);
         let gt_mask = _mm_cmpgt_epi32(new_values, values_high);
 
         values_high = _mm_or_si128(
