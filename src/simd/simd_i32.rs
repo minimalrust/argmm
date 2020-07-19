@@ -153,7 +153,7 @@ mod tests {
 
     fn get_array_i32() -> Vec<i32> {
         let rng = thread_rng();
-        let uni = Uniform::new_inclusive(-100_000, 100_000);
+        let uni = Uniform::new_inclusive(std::i32::MIN, std::i32::MAX);
         rng.sample_iter(uni).take(1025).collect()
     }
 

@@ -143,12 +143,12 @@ unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 mod tests {
     use super::{argmax_f32, argmin_f32, simple_argmax, simple_argmin};
     use rand::{thread_rng, Rng};
-    use rand_distr::Exp;
+    use rand_distr::Uniform;
 
     fn get_array_f32() -> Vec<f32> {
         let rng = thread_rng();
-        let exp = Exp::new(1.0).unwrap();
-        rng.sample_iter(exp).take(1025).collect()
+        let uni = Uniform::new_inclusive(std::f32::MIN, std::f32::MAX);
+        rng.sample_iter(uni).take(1025).collect()
     }
 
     #[test]
