@@ -150,34 +150,20 @@ mod tests {
     use rand::{thread_rng, Rng};
     use rand_distr::Uniform;
 
-    fn get_array_i32() -> Vec<i32> {
+    fn get_array_i32(n: usize) -> Vec<i32> {
         let rng = thread_rng();
         let uni = Uniform::new_inclusive(std::i32::MIN, std::i32::MAX);
-        rng.sample_iter(uni).take(1025).collect()
-    }
-
-    #[test]
-    fn test_using_a_random_input_returns_the_same_result() {
-        let data = get_array_i32();
-        assert_eq!(data.len() % 4, 1);
-
-        let min_index = argmin_i32(&data).unwrap();
-        let max_index = argmax_i32(&data).unwrap();
-        let argmin_index = simple_argmin(&data);
-        let argmax_index = simple_argmax(&data);
-
-        assert_eq!(argmin_index, min_index);
-        assert_eq!(argmax_index, max_index);
+        rng.sample_iter(uni).take(n).collect()
     }
 
     #[test]
     fn test_both_versions_return_the_same_results() {
-        let data = vec![100, 5, 3, 7, 8, 9, 9, 5, 12, 5, 3, 2, 909];
+        let data = get_array_i32(1025);
         assert_eq!(data.len() % 4, 1);
 
         let min_index = argmin_i32(&data).unwrap();
-        let argmin_index = simple_argmin(&data);
         let max_index = argmax_i32(&data).unwrap();
+        let argmin_index = simple_argmin(&data);
         let argmax_index = simple_argmax(&data);
 
         assert_eq!(argmin_index, min_index);
@@ -186,11 +172,20 @@ mod tests {
 
     #[test]
     fn test_first_index_is_returned_when_identical_values_found() {
-        let data = [10, 4, 6, 9, 9, 22, 22, 4];
+        let data = [
+            std::i32::MIN,
+            std::i32::MIN,
+            4,
+            6,
+            9,
+            std::i32::MAX,
+            22,
+            std::i32::MAX,
+        ];
         let argmin_index = simple_argmin(&data);
         let argmin_simd_index = argmin_i32(&data).unwrap();
         assert_eq!(argmin_index, argmin_simd_index);
-        assert_eq!(argmin_index, 1);
+        assert_eq!(argmin_index, 0);
 
         let argmax_index = simple_argmax(&data);
         let argmax_simd_index = argmax_i32(&data).unwrap();

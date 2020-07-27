@@ -180,7 +180,7 @@ mod tests {
 
     #[test]
     fn test_both_versions_return_the_same_results() {
-        let data = get_array_u8(21);
+        let data = get_array_u8(1025);
         assert_eq!(data.len() % 4, 1);
 
         let min_index = argmin_u8(&data).unwrap();
@@ -194,7 +194,7 @@ mod tests {
 
     #[test]
     fn test_first_index_is_returned_when_identical_values_found() {
-        let data = [10, std::u8::MIN, 6, 9, 9, std::u8::MAX, std::u8::MAX, 4];
+        let data = [10, std::u8::MIN, 6, 9, 9, 22, std::u8::MAX, 4, std::u8::MAX];
         let argmin_index = simple_argmin(&data);
         let argmin_simd_index = argmin_u8(&data).unwrap();
         assert_eq!(argmin_index, argmin_simd_index);
@@ -203,6 +203,6 @@ mod tests {
         let argmax_index = simple_argmax(&data);
         let argmax_simd_index = argmax_u8(&data).unwrap();
         assert_eq!(argmax_index, argmax_simd_index);
-        assert_eq!(argmax_index, 5);
+        assert_eq!(argmax_index, 6);
     }
 }

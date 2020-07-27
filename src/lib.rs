@@ -4,10 +4,10 @@ mod simd;
 #[cfg(target_feature = "sse")]
 mod task;
 
+#[cfg(not(target_feature = "sse"))]
+pub use generic::{simple_argmax, simple_argmin};
 #[cfg(target_feature = "sse")]
 pub use simd::{simd_f32, simd_i32, simd_u8};
-#[cfg(not(target_feature = "sse"))]
-pub use generic::{simple_argmin, simple_argmax};
 
 pub trait ArgMinMax {
     fn argmin(&self) -> Option<usize>;

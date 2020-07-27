@@ -144,38 +144,15 @@ mod tests {
     use rand::{thread_rng, Rng};
     use rand_distr::Uniform;
 
-    fn get_array_f32() -> Vec<f32> {
+    fn get_array_f32(n: usize) -> Vec<f32> {
         let rng = thread_rng();
         let uni = Uniform::new_inclusive(std::f32::MIN, std::f32::MAX);
-        rng.sample_iter(uni).take(1025).collect()
-    }
-
-    #[test]
-    fn test_using_a_random_input_returns_the_same_result() {
-        let data = get_array_f32();
-        assert_eq!(data.len() % 4, 1);
-
-        let min_index = argmin_f32(&data).unwrap();
-        let max_index = argmax_f32(&data).unwrap();
-        let argmin_index = simple_argmin(&data);
-        let argmax_index = simple_argmax(&data);
-
-        assert_eq!(argmin_index, min_index);
-        assert_eq!(argmax_index, max_index);
+        rng.sample_iter(uni).take(n).collect()
     }
 
     #[test]
     fn test_both_versions_return_the_same_results() {
-        let data = vec![
-            2924.92, 2941.76, 2964.33, 2973.01, 2995.82, 2990.41, 2975.95, 2979.63, 2993.07,
-            2999.91, 3013.77, 3014.3, 3004.04, 2984.42, 2995.11, 2976.61, 2985.03, 3005.47,
-            3019.56, 3003.67, 3025.86, 3020.97, 3013.18, 2980.38, 2953.56, 2932.05, 2844.74,
-            2881.77, 2883.98, 2938.09, 2918.65, 2882.7, 2926.32, 2840.6, 2847.6, 2888.68, 2923.65,
-            2900.51, 2924.43, 2922.95, 2847.11, 2878.38, 2869.16, 2887.94, 2924.58, 2926.46,
-            2906.27, 2937.78, 2976.0, 2978.71, 2978.43, 2979.39, 3000.93, 3009.57, 3007.39,
-            2997.96, 3005.7, 3006.73, 3006.79, 2992.07, 2991.78, 2966.6, 2984.87, 2977.62, 2961.79,
-        ];
-
+        let data = get_array_f32(1025);
         assert_eq!(data.len() % 4, 1);
 
         let min_index = argmin_f32(&data).unwrap();
@@ -185,21 +162,27 @@ mod tests {
 
         assert_eq!(argmin_index, min_index);
         assert_eq!(argmax_index, max_index);
-        assert_eq!(data[min_index], 2840.6);
-        assert_eq!(data[max_index], 3025.86);
     }
 
     #[test]
     fn test_first_index_is_returned_when_identical_values_found() {
-        let data = [10., 4., 6., 9., 9., 22., 22., 4.];
+        let data = [
+            10.,
+            std::f32::MAX,
+            6.,
+            std::f32::NEG_INFINITY,
+            std::f32::NEG_INFINITY,
+            std::f32::MAX,
+            10_000.0,
+        ];
         let argmin_index = simple_argmin(&data);
         let argmin_simd_index = argmin_f32(&data).unwrap();
         assert_eq!(argmin_index, argmin_simd_index);
-        assert_eq!(argmin_index, 1);
+        assert_eq!(argmin_index, 3);
 
         let argmax_index = simple_argmax(&data);
         let argmax_simd_index = argmax_f32(&data).unwrap();
         assert_eq!(argmax_index, argmax_simd_index);
-        assert_eq!(argmax_index, 5);
+        assert_eq!(argmax_index, 1);
     }
 }
