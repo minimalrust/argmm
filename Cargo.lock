@@ -8,7 +8,7 @@ checksum = "7825f6833612eb2414095684fcf6c635becf3ce97fe48cf6421321e93bfbd53c"
 
 [[package]]
 name = "argmm"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "criterion",
  "rand",

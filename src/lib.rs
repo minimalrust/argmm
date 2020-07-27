@@ -54,7 +54,7 @@ macro_rules! impl_argmm_u8 {
 
             fn argmin(&self) -> Option<usize> {
             #[cfg(not(target_feature = "sse"))] return Some(simple_argmin(self));
-            #[cfg(target_feature = "sse")] return simd_u8::argmin_u8(self);
+            #[cfg(target_feature = "sse")] return simd_u8::argmin_u8(self) ;
             }
 
             fn argmax(&self) -> Option<usize> {
