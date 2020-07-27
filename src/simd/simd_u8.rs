@@ -2,7 +2,7 @@ use crate::generic::{simple_argmax, simple_argmin};
 use crate::task::split_array;
 use std::arch::x86_64::*;
 
-pub fn argmin_i32(arr: &[i32]) -> Option<usize> {
+pub fn argmin_u8(arr: &[u8]) -> Option<usize> {
     match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
             let rem_min_index = simple_argmin(rem);
@@ -21,19 +21,30 @@ pub fn argmin_i32(arr: &[i32]) -> Option<usize> {
     }
 }
 
-unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
+unsafe fn core_argmin(sim_arr: &[u8], rem_offset: usize) -> (u8, usize) {
     let offset = _mm_set1_epi32(rem_offset as i32);
     let mut index_low = _mm_add_epi32(_mm_set_epi32(3, 2, 1, 0), offset);
 
     let increment = _mm_set1_epi32(4);
     let mut new_index_low = index_low;
 
-    let mut values_low = _mm_loadu_si128(sim_arr.as_ptr() as *const __m128i);
+    let mut values_low = _mm_set_epi32(
+        sim_arr[3] as i32,
+        sim_arr[2] as i32,
+        sim_arr[1] as i32,
+        sim_arr[0] as i32,
+    );
 
     sim_arr.chunks_exact(4).skip(1).for_each(|step| {
         new_index_low = _mm_add_epi32(new_index_low, increment);
 
-        let new_values = _mm_loadu_si128(step.as_ptr() as *const __m128i);
+        let new_values = _mm_set_epi32(
+            step[3] as i32,
+            step[2] as i32,
+            step[1] as i32,
+            step[0] as i32,
+        );
+
         let lt_mask = _mm_cmplt_epi32(new_values, values_low);
 
         values_low = _mm_or_si128(
@@ -63,17 +74,17 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
         _mm_andnot_si128(low_mask, _mm_set1_epi32(std::i32::MAX)),
     );
 
-    let value_array = std::mem::transmute::<__m128i, [i32; 4]>(values_low);
+    let value_array = std::mem::transmute::<__m128i, [u32; 4]>(values_low);
     let index_array = std::mem::transmute::<__m128i, [i32; 4]>(index_low);
 
     let min_index = simple_argmin(&index_array);
     let value = *value_array.get_unchecked(min_index);
     let index = *index_array.get_unchecked(min_index);
 
-    (value, index as usize)
+    (value as u8, index as usize)
 }
 
-pub fn argmax_i32(arr: &[i32]) -> Option<usize> {
+pub fn argmax_u8(arr: &[u8]) -> Option<usize> {
     match split_array(arr, 4) {
         (Some(rem), Some(sim)) => {
             let rem_min_index = simple_argmax(rem);
@@ -92,19 +103,30 @@ pub fn argmax_i32(arr: &[i32]) -> Option<usize> {
     }
 }
 
-unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
+unsafe fn core_argmax(sim_arr: &[u8], rem_offset: usize) -> (u8, usize) {
     let offset = _mm_set1_epi32(rem_offset as i32);
     let mut index_high = _mm_add_epi32(_mm_set_epi32(3, 2, 1, 0), offset);
     let mut new_index_high = index_high;
 
     let increment = _mm_set1_epi32(4);
 
-    let mut values_high = _mm_loadu_si128(sim_arr.as_ptr() as *const __m128i);
+    let mut values_high = _mm_set_epi32(
+        sim_arr[3] as i32,
+        sim_arr[2] as i32,
+        sim_arr[1] as i32,
+        sim_arr[0] as i32,
+    );
 
     sim_arr.chunks_exact(4).skip(1).for_each(|step| {
         new_index_high = _mm_add_epi32(new_index_high, increment);
 
-        let new_values = _mm_loadu_si128(step.as_ptr() as *const __m128i);
+        let new_values = _mm_set_epi32(
+            step[3] as i32,
+            step[2] as i32,
+            step[1] as i32,
+            step[0] as i32,
+        );
+
         let gt_mask = _mm_cmpgt_epi32(new_values, values_high);
 
         values_high = _mm_or_si128(
@@ -134,50 +156,36 @@ unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
         _mm_andnot_si128(high_mask, _mm_set1_epi32(std::i32::MAX)),
     );
 
-    let value_array = std::mem::transmute::<__m128i, [i32; 4]>(values_high);
+    let value_array = std::mem::transmute::<__m128i, [u32; 4]>(values_high);
     let index_array = std::mem::transmute::<__m128i, [i32; 4]>(index_high);
 
     let min_index = simple_argmin(&index_array);
     let value = *value_array.get_unchecked(min_index);
     let index = *index_array.get_unchecked(min_index);
 
-    (value, index as usize)
+    (value as u8, index as usize)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{argmax_i32, argmin_i32, simple_argmax, simple_argmin};
+    use super::{argmax_u8, argmin_u8, simple_argmax, simple_argmin};
     use rand::{thread_rng, Rng};
     use rand_distr::Uniform;
 
-    fn get_array_i32() -> Vec<i32> {
+    fn get_array_u8(n: usize) -> Vec<u8> {
         let rng = thread_rng();
-        let uni = Uniform::new_inclusive(std::i32::MIN, std::i32::MAX);
-        rng.sample_iter(uni).take(1025).collect()
-    }
-
-    #[test]
-    fn test_using_a_random_input_returns_the_same_result() {
-        let data = get_array_i32();
-        assert_eq!(data.len() % 4, 1);
-
-        let min_index = argmin_i32(&data).unwrap();
-        let max_index = argmax_i32(&data).unwrap();
-        let argmin_index = simple_argmin(&data);
-        let argmax_index = simple_argmax(&data);
-
-        assert_eq!(argmin_index, min_index);
-        assert_eq!(argmax_index, max_index);
+        let uni = Uniform::new_inclusive(std::u8::MIN, std::u8::MAX);
+        rng.sample_iter(uni).take(n).collect()
     }
 
     #[test]
     fn test_both_versions_return_the_same_results() {
-        let data = vec![100, 5, 3, 7, 8, 9, 9, 5, 12, 5, 3, 2, 909];
+        let data = get_array_u8(21);
         assert_eq!(data.len() % 4, 1);
 
-        let min_index = argmin_i32(&data).unwrap();
+        let min_index = argmin_u8(&data).unwrap();
+        let max_index = argmax_u8(&data).unwrap();
         let argmin_index = simple_argmin(&data);
-        let max_index = argmax_i32(&data).unwrap();
         let argmax_index = simple_argmax(&data);
 
         assert_eq!(argmin_index, min_index);
@@ -186,14 +194,14 @@ mod tests {
 
     #[test]
     fn test_first_index_is_returned_when_identical_values_found() {
-        let data = [10, 4, 6, 9, 9, 22, 22, 4];
+        let data = [10, std::u8::MIN, 6, 9, 9, std::u8::MAX, std::u8::MAX, 4];
         let argmin_index = simple_argmin(&data);
-        let argmin_simd_index = argmin_i32(&data).unwrap();
+        let argmin_simd_index = argmin_u8(&data).unwrap();
         assert_eq!(argmin_index, argmin_simd_index);
         assert_eq!(argmin_index, 1);
 
         let argmax_index = simple_argmax(&data);
-        let argmax_simd_index = argmax_i32(&data).unwrap();
+        let argmax_simd_index = argmax_u8(&data).unwrap();
         assert_eq!(argmax_index, argmax_simd_index);
         assert_eq!(argmax_index, 5);
     }

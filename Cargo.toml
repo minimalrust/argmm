@@ -16,6 +16,10 @@ rand = "0.7.2"
 rand_distr = "0.2.2"
 
 [[bench]]
+name = "bench_u8"
+harness = false
+
+[[bench]]
 name = "bench_f32"
 harness = false
 
