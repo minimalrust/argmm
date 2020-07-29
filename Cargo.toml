@@ -1,12 +1,12 @@
 [package]
 name = "argmm"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["minimalrust <minimalrustdev@gmail.com>"]
 edition = "2018"
 readme = "README.md"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/minimalrust/argmm.git"
-description = "Argmin and argmax with SIMD support for u8, i32 and f32"
+description = "Argmin and argmax with SIMD support for u8, u16, i16, i32 and f32"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -14,10 +14,6 @@ description = "Argmin and argmax with SIMD support for u8, i32 and f32"
 criterion = "0.3.0"
 rand = "0.7.2"
 rand_distr = "0.2.2"
-
-[[bench]]
-name = "bench_u8"
-harness = false
 
 [[bench]]
 name = "bench_f32"
@@ -30,3 +26,12 @@ harness = false
 [[bench]]
 name = "bench_i16"
 harness = false
+
+[[bench]]
+name = "bench_u16"
+harness = false
+
+[[bench]]
+name = "bench_u8"
+harness = false
+

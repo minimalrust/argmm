@@ -1,0 +1,24 @@
+simple_argmax_f32       time:   [546.02 ns 548.35 ns 551.08 ns]
+argmax_simd_f32         time:   [157.99 ns 158.13 ns 158.30 ns]
+simple_argmin_f32       time:   [537.72 ns 538.25 ns 538.93 ns]
+argmin_simd_f32         time:   [157.68 ns 157.77 ns 157.87 ns]
+
+simple_argmax_i16       time:   [275.15 ns 275.47 ns 275.84 ns]
+argmax_simd_i16         time:   [208.12 ns 208.26 ns 208.42 ns]
+simple_argmin_i16       time:   [267.14 ns 267.55 ns 268.20 ns]
+argmin_simd_i16         time:   [207.86 ns 208.29 ns 208.84 ns]
+
+simple_argmax_i32       time:   [259.10 ns 259.29 ns 259.49 ns]
+argmax_simd_i32         time:   [190.71 ns 191.00 ns 191.40 ns]
+simple_argmin_i32       time:   [254.07 ns 254.32 ns 254.60 ns]
+argmin_simd_i32         time:   [208.83 ns 208.99 ns 209.17 ns]
+
+simple_argmax_u16       time:   [276.24 ns 276.40 ns 276.58 ns]
+argmax_simd_u16         time:   [207.87 ns 208.06 ns 208.28 ns]
+simple_argmin_u16       time:   [260.19 ns 260.46 ns 260.82 ns]
+argmin_simd_u16         time:   [207.71 ns 207.96 ns 208.26 ns]
+
+simple_argmax_u8        time:   [244.45 ns 244.60 ns 244.78 ns]
+argmax_simd_u8          time:   [208.55 ns 208.78 ns 209.02 ns]
+simple_argmin_u8        time:   [252.91 ns 253.19 ns 253.49 ns]
+argmin_simd_u8          time:   [208.29 ns 208.42 ns 208.56 ns]

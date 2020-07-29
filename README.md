@@ -1,13 +1,13 @@
 # Argmm
 
-Argmin/max with SIMD support for u8, i32 and f32 arrays and vectors.
+Argmin/max with SIMD support for u8, i16, u16, i32 and f32 arrays and vectors.
 
 ## Installing
 
 Add the following to your Cargo.toml
 
 ```
-argmm = "0.1.1"
+argmm = "0.1.2"
 ```
 
 ## Getting started
@@ -31,7 +31,7 @@ Alternatively, the generic function can be used if you require non-SIMD support 
 use argmm::generic::{simple_argmin, simple_argmax};
 
 fn main() {
-    let v = vec![1u16, 3, 20, 50, 82, 9, 53, 60, 0];
+    let v = vec![1u64, 3, 20, 50, 82, 9, 53, 60, 0];
     let min_index = simple_argmin(&v);
     let max_index = simple_argmax(&v);
     assert_eq!(min_index, 8);
@@ -44,7 +44,7 @@ fn main() {
 Using a MacBook Pro (Retina, 13-inch, Early 2015) Processor 2.7 GHz Dual-Core Intel Core i5
 with an array size of 512.
 
-See `/benches/bench_results`.
+See `/benches/results`.
 
 ## Warning
 

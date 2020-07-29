@@ -2,15 +2,15 @@
 extern crate criterion;
 
 use rand::{thread_rng, Rng};
-use rand_distr::Exp;
+use rand_distr::Uniform;
 
 use argmm::ArgMinMax;
 use criterion::{black_box, Criterion};
 
 fn get_array_f32() -> Vec<f32> {
     let rng = thread_rng();
-    let exp = Exp::new(1.0).unwrap();
-    rng.sample_iter(exp).take(512).collect()
+    let uni = Uniform::new(std::f32::MIN, std::f32::MAX);
+    rng.sample_iter(uni).take(512).collect()
 }
 
 fn max_f32(c: &mut Criterion) {
