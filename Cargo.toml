@@ -26,3 +26,7 @@ harness = false
 [[bench]]
 name = "bench_i32"
 harness = false
+
+[[bench]]
+name = "bench_i16"
+harness = false
