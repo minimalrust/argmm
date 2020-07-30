@@ -1,5 +1,5 @@
 use crate::generic::{simple_argmax, simple_argmin};
-use crate::task::split_array;
+use crate::task::{find_final_index_max, find_final_index_min, split_array};
 use std::arch::x86_64::*;
 
 pub fn argmin_i32(arr: &[i32]) -> Option<usize> {
@@ -8,9 +8,7 @@ pub fn argmin_i32(arr: &[i32]) -> Option<usize> {
             let rem_min_index = simple_argmin(rem);
             let rem_result = (rem[rem_min_index], rem_min_index);
             let sim_result = unsafe { core_argmin(sim, rem.len()) };
-            let final_test = &[rem_result, sim_result];
-            let final_index = simple_argmin(final_test);
-            Some(final_test[final_index].1)
+            find_final_index_min(rem_result, sim_result)
         }
         (Some(rem), None) => Some(simple_argmin(rem)),
         (None, Some(sim)) => {
@@ -79,9 +77,7 @@ pub fn argmax_i32(arr: &[i32]) -> Option<usize> {
             let rem_min_index = simple_argmax(rem);
             let rem_result = (rem[rem_min_index], rem_min_index);
             let sim_result = unsafe { core_argmax(sim, rem.len()) };
-            let final_test = &[rem_result, sim_result];
-            let final_index = simple_argmax(final_test);
-            Some(final_test[final_index].1)
+            find_final_index_max(rem_result, sim_result)
         }
         (Some(rem), None) => Some(simple_argmax(rem)),
         (None, Some(sim)) => {
