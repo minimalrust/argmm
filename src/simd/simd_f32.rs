@@ -43,13 +43,11 @@ unsafe fn core_argmin(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
     let highpack = _mm_unpackhi_ps(values_low, values_low);
     let lowpack = _mm_unpacklo_ps(values_low, values_low);
+    let lowest = _mm_min_ps(highpack, lowpack);
 
-    let mut lowest = _mm_min_ps(highpack, lowpack);
-
-    let highestpack = _mm_unpackhi_ps(lowest, lowest);
-    let lowestpack = _mm_unpacklo_ps(lowest, lowest);
-
-    lowest = _mm_min_ps(highestpack, lowestpack);
+    let highpack = _mm_unpackhi_ps(lowest, lowest);
+    let lowpack = _mm_unpacklo_ps(lowest, lowest);
+    let lowest = _mm_min_ps(highpack, lowpack);
 
     let low_mask = _mm_cmpeq_ps(lowest, values_low);
 
@@ -109,13 +107,11 @@ unsafe fn core_argmax(sim_arr: &[f32], rem_offset: usize) -> (f32, usize) {
 
     let highpack = _mm_unpackhi_ps(values_high, values_high);
     let lowpack = _mm_unpacklo_ps(values_high, values_high);
+    let highest = _mm_max_ps(highpack, lowpack);
 
-    let mut highest = _mm_max_ps(highpack, lowpack);
-
-    let highestpack = _mm_unpackhi_ps(highest, highest);
-    let lowestpack = _mm_unpacklo_ps(highest, highest);
-
-    highest = _mm_max_ps(highestpack, lowestpack);
+    let highpack = _mm_unpackhi_ps(highest, highest);
+    let lowpack = _mm_unpacklo_ps(highest, highest);
+    let highest = _mm_max_ps(highpack, lowpack);
 
     let high_mask = _mm_cmpeq_ps(highest, values_high);
 

@@ -46,13 +46,11 @@ unsafe fn core_argmin(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
 
     let highpack = _mm_unpackhi_epi32(values_low, values_low);
     let lowpack = _mm_unpacklo_epi32(values_low, values_low);
+    let lowest = _mm_min_epi32(highpack, lowpack);
 
-    let mut lowest = _mm_min_epi32(highpack, lowpack);
-
-    let highestpack = _mm_unpackhi_epi32(lowest, lowest);
-    let lowestpack = _mm_unpacklo_epi32(lowest, lowest);
-
-    lowest = _mm_min_epi32(highestpack, lowestpack);
+    let highpack = _mm_unpackhi_epi32(lowest, lowest);
+    let lowpack = _mm_unpacklo_epi32(lowest, lowest);
+    let lowest = _mm_min_epi32(highpack, lowpack);
 
     let low_mask = _mm_cmpeq_epi32(lowest, values_low);
 
@@ -115,13 +113,11 @@ unsafe fn core_argmax(sim_arr: &[i32], rem_offset: usize) -> (i32, usize) {
 
     let highpack = _mm_unpackhi_epi32(values_high, values_high);
     let lowpack = _mm_unpacklo_epi32(values_high, values_high);
+    let highest = _mm_max_epi32(highpack, lowpack);
 
-    let mut highest = _mm_max_epi32(highpack, lowpack);
-
-    let highestpack = _mm_unpackhi_epi32(highest, highest);
-    let lowestpack = _mm_unpacklo_epi32(highest, highest);
-
-    highest = _mm_max_epi32(highestpack, lowestpack);
+    let highpack = _mm_unpackhi_epi32(highest, highest);
+    let lowpack = _mm_unpacklo_epi32(highest, highest);
+    let highest = _mm_max_epi32(highpack, lowpack);
 
     let high_mask = _mm_cmpeq_epi32(highest, values_high);
 
