@@ -28,6 +28,67 @@ pub fn argmin_u8(arr: &[u8]) -> Option<usize> {
     }
 }
 
+unsafe fn core_argmin(sim_arr: &[u8], rem_offset: usize) -> (u8, usize) {
+    let offset = _mm_set1_epi32(rem_offset as i32);
+    let mut index_low = _mm_add_epi32(_mm_set_epi32(3, 2, 1, 0), offset);
+
+    let increment = _mm_set1_epi32(4);
+    let mut new_index_low = index_low;
+
+    let mut values_low = _mm_set_epi32(
+        sim_arr[3] as i32,
+        sim_arr[2] as i32,
+        sim_arr[1] as i32,
+        sim_arr[0] as i32,
+    );
+
+    sim_arr.chunks_exact(4).skip(1).for_each(|step| {
+        new_index_low = _mm_add_epi32(new_index_low, increment);
+
+        let new_values = _mm_set_epi32(
+            step[3] as i32,
+            step[2] as i32,
+            step[1] as i32,
+            step[0] as i32,
+        );
+
+        let lt_mask = _mm_cmplt_epi32(new_values, values_low);
+
+        values_low = _mm_or_si128(
+            _mm_and_si128(new_values, lt_mask),
+            _mm_andnot_si128(lt_mask, values_low),
+        );
+        index_low = _mm_or_si128(
+            _mm_and_si128(new_index_low, lt_mask),
+            _mm_andnot_si128(lt_mask, index_low),
+        );
+    });
+
+    let highpack = _mm_unpackhi_epi32(values_low, values_low);
+    let lowpack = _mm_unpacklo_epi32(values_low, values_low);
+    let lowest = _mm_min_epi32(highpack, lowpack);
+
+    let highpack = _mm_unpackhi_epi32(lowest, lowest);
+    let lowpack = _mm_unpacklo_epi32(lowest, lowest);
+    let lowest = _mm_min_epi32(highpack, lowpack);
+
+    let low_mask = _mm_cmpeq_epi32(lowest, values_low);
+
+    index_low = _mm_or_si128(
+        _mm_and_si128(index_low, low_mask),
+        _mm_andnot_si128(low_mask, _mm_set1_epi32(std::i32::MAX)),
+    );
+
+    let value_array = std::mem::transmute::<__m128i, [u32; 4]>(values_low);
+    let index_array = std::mem::transmute::<__m128i, [i32; 4]>(index_low);
+
+    let min_index = simple_argmin(&index_array);
+    let value = *value_array.get_unchecked(min_index);
+    let index = *index_array.get_unchecked(min_index);
+
+    (value as u8, index as usize)
+}
+
 unsafe fn core_argmin_ext(sim_arr: &[u8], rem_offset: usize) -> (u8, usize) {
     let offset = _mm_set1_epi16(rem_offset as i16);
     let mut index_low = _mm_add_epi16(_mm_set_epi16(7, 6, 5, 4, 3, 2, 1, 0), offset);
@@ -93,67 +154,6 @@ unsafe fn core_argmin_ext(sim_arr: &[u8], rem_offset: usize) -> (u8, usize) {
 
     let value_array = std::mem::transmute::<__m128i, [i16; 8]>(values_low);
     let index_array = std::mem::transmute::<__m128i, [i16; 8]>(index_low);
-
-    let min_index = simple_argmin(&index_array);
-    let value = *value_array.get_unchecked(min_index);
-    let index = *index_array.get_unchecked(min_index);
-
-    (value as u8, index as usize)
-}
-
-unsafe fn core_argmin(sim_arr: &[u8], rem_offset: usize) -> (u8, usize) {
-    let offset = _mm_set1_epi32(rem_offset as i32);
-    let mut index_low = _mm_add_epi32(_mm_set_epi32(3, 2, 1, 0), offset);
-
-    let increment = _mm_set1_epi32(4);
-    let mut new_index_low = index_low;
-
-    let mut values_low = _mm_set_epi32(
-        sim_arr[3] as i32,
-        sim_arr[2] as i32,
-        sim_arr[1] as i32,
-        sim_arr[0] as i32,
-    );
-
-    sim_arr.chunks_exact(4).skip(1).for_each(|step| {
-        new_index_low = _mm_add_epi32(new_index_low, increment);
-
-        let new_values = _mm_set_epi32(
-            step[3] as i32,
-            step[2] as i32,
-            step[1] as i32,
-            step[0] as i32,
-        );
-
-        let lt_mask = _mm_cmplt_epi32(new_values, values_low);
-
-        values_low = _mm_or_si128(
-            _mm_and_si128(new_values, lt_mask),
-            _mm_andnot_si128(lt_mask, values_low),
-        );
-        index_low = _mm_or_si128(
-            _mm_and_si128(new_index_low, lt_mask),
-            _mm_andnot_si128(lt_mask, index_low),
-        );
-    });
-
-    let highpack = _mm_unpackhi_epi32(values_low, values_low);
-    let lowpack = _mm_unpacklo_epi32(values_low, values_low);
-    let lowest = _mm_min_epi32(highpack, lowpack);
-
-    let highpack = _mm_unpackhi_epi32(lowest, lowest);
-    let lowpack = _mm_unpacklo_epi32(lowest, lowest);
-    let lowest = _mm_min_epi32(highpack, lowpack);
-
-    let low_mask = _mm_cmpeq_epi32(lowest, values_low);
-
-    index_low = _mm_or_si128(
-        _mm_and_si128(index_low, low_mask),
-        _mm_andnot_si128(low_mask, _mm_set1_epi32(std::i32::MAX)),
-    );
-
-    let value_array = std::mem::transmute::<__m128i, [u32; 4]>(values_low);
-    let index_array = std::mem::transmute::<__m128i, [i32; 4]>(index_low);
 
     let min_index = simple_argmin(&index_array);
     let value = *value_array.get_unchecked(min_index);
