@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 #[inline]
 pub(crate) fn split_array<T: Copy>(arr: &[T], lane_size: usize) -> (Option<&[T]>, Option<&[T]>) {
     let n = arr.len();
@@ -14,4 +16,28 @@ pub(crate) fn split_array<T: Copy>(arr: &[T], lane_size: usize) -> (Option<&[T]>
         (true, false) => (None, Some(right_arr)),
         (false, true) => (Some(left_arr), None),
     }
+}
+
+pub fn find_final_index_min<T: PartialOrd>(
+    remainder_result: (T, usize),
+    simd_result: (T, usize),
+) -> Option<usize> {
+    let result = match remainder_result.0.partial_cmp(&simd_result.0).unwrap() {
+        Ordering::Less => remainder_result.1,
+        Ordering::Equal => std::cmp::min(remainder_result.1, simd_result.1),
+        Ordering::Greater => simd_result.1,
+    };
+    Some(result)
+}
+
+pub fn find_final_index_max<T: PartialOrd>(
+    remainder_result: (T, usize),
+    simd_result: (T, usize),
+) -> Option<usize> {
+    let result = match simd_result.0.partial_cmp(&remainder_result.0).unwrap() {
+        Ordering::Less => remainder_result.1,
+        Ordering::Equal => std::cmp::min(remainder_result.1, simd_result.1),
+        Ordering::Greater => simd_result.1,
+    };
+    Some(result)
 }
