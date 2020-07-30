@@ -18,6 +18,7 @@ pub(crate) fn split_array<T: Copy>(arr: &[T], lane_size: usize) -> (Option<&[T]>
     }
 }
 
+#[inline]
 pub fn find_final_index_min<T: PartialOrd>(
     remainder_result: (T, usize),
     simd_result: (T, usize),
@@ -30,6 +31,7 @@ pub fn find_final_index_min<T: PartialOrd>(
     Some(result)
 }
 
+#[inline]
 pub fn find_final_index_max<T: PartialOrd>(
     remainder_result: (T, usize),
     simd_result: (T, usize),
