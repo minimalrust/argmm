@@ -1,6 +1,7 @@
 use crate::generic::{simple_argmax, simple_argmin};
 use crate::task::split_array;
 use std::arch::x86_64::*;
+use std::cmp::Ordering;
 
 pub fn argmin_u16(arr: &[u16]) -> Option<usize> {
     match split_array(arr, 4) {
@@ -8,9 +9,12 @@ pub fn argmin_u16(arr: &[u16]) -> Option<usize> {
             let rem_min_index = simple_argmin(rem);
             let rem_result = (rem[rem_min_index], rem_min_index);
             let sim_result = unsafe { core_argmin(sim, rem.len()) };
-            let final_test = &[rem_result, sim_result];
-            let final_index = simple_argmin(final_test);
-            Some(final_test[final_index].1)
+            let final_index = match rem_result.0.cmp(&sim_result.0) {
+                Ordering::Less => rem_result.1,
+                Ordering::Equal => std::cmp::min(rem_result.1, sim_result.1),
+                Ordering::Greater => sim_result.1,
+            };
+            Some(final_index)
         }
         (Some(rem), None) => Some(simple_argmin(rem)),
         (None, Some(sim)) => {
@@ -90,9 +94,12 @@ pub fn argmax_u16(arr: &[u16]) -> Option<usize> {
             let rem_min_index = simple_argmax(rem);
             let rem_result = (rem[rem_min_index], rem_min_index);
             let sim_result = unsafe { core_argmax(sim, rem.len()) };
-            let final_test = &[rem_result, sim_result];
-            let final_index = simple_argmax(final_test);
-            Some(final_test[final_index].1)
+            let final_index = match sim_result.0.cmp(&rem_result.0) {
+                Ordering::Less => rem_result.1,
+                Ordering::Equal => std::cmp::min(rem_result.1, sim_result.1),
+                Ordering::Greater => sim_result.1,
+            };
+            Some(final_index)
         }
         (Some(rem), None) => Some(simple_argmax(rem)),
         (None, Some(sim)) => {
