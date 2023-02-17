@@ -1,3 +1,7 @@
+# NOTICE
+
+The preferred package is now [argminmax](https://crates.io/crates/argminmax) which is actively maintained and far more feature complete. This repo will be purely experimental from now on. A special thanks to [jvdd](https://github.com/jvdd) for building on the idea and taking it to the next step :clap:.
+
 # Argmm
 
 Argmin/max with SIMD support for u8, i16, u16, i32 and f32 arrays and vectors.
