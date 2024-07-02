@@ -11,9 +11,9 @@ description = "Argmin and argmax with SIMD support for u8, u16, i16, i32 and f32
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dev-dependencies]
-criterion = "0.3.0"
-rand = "0.7.2"
-rand_distr = "0.2.2"
+criterion = "0.5.1"
+rand = "0.8.5"
+rand_distr = "0.4.3"
 
 [[bench]]
 name = "bench_f32"

@@ -97,13 +97,7 @@ unsafe fn core_argmin_ext(sim_arr: &[i16], rem_offset: usize) -> (i16, usize) {
     let mut new_index_low = index_low;
 
     let mut values_low = _mm_set_epi16(
-        sim_arr[7],
-        sim_arr[6],
-        sim_arr[5],
-        sim_arr[4],
-        sim_arr[3],
-        sim_arr[2],
-        sim_arr[1],
+        sim_arr[7], sim_arr[6], sim_arr[5], sim_arr[4], sim_arr[3], sim_arr[2], sim_arr[1],
         sim_arr[0],
     );
 
@@ -111,14 +105,7 @@ unsafe fn core_argmin_ext(sim_arr: &[i16], rem_offset: usize) -> (i16, usize) {
         new_index_low = _mm_add_epi16(new_index_low, increment);
 
         let new_values = _mm_set_epi16(
-            step[7],
-            step[6],
-            step[5],
-            step[4],
-            step[3],
-            step[2],
-            step[1],
-            step[0],
+            step[7], step[6], step[5], step[4], step[3], step[2], step[1], step[0],
         );
 
         let lt_mask = _mm_cmplt_epi16(new_values, values_low);
@@ -257,13 +244,7 @@ unsafe fn core_argmax_ext(sim_arr: &[i16], rem_offset: usize) -> (i16, usize) {
     let increment = _mm_set1_epi16(8);
 
     let mut values_high = _mm_set_epi16(
-        sim_arr[7],
-        sim_arr[6],
-        sim_arr[5],
-        sim_arr[4],
-        sim_arr[3],
-        sim_arr[2],
-        sim_arr[1],
+        sim_arr[7], sim_arr[6], sim_arr[5], sim_arr[4], sim_arr[3], sim_arr[2], sim_arr[1],
         sim_arr[0],
     );
 
@@ -271,14 +252,7 @@ unsafe fn core_argmax_ext(sim_arr: &[i16], rem_offset: usize) -> (i16, usize) {
         new_index_high = _mm_add_epi16(new_index_high, increment);
 
         let new_values = _mm_set_epi16(
-            step[7],
-            step[6],
-            step[5],
-            step[4],
-            step[3],
-            step[2],
-            step[1],
-            step[0],
+            step[7], step[6], step[5], step[4], step[3], step[2], step[1], step[0],
         );
 
         let gt_mask = _mm_cmpgt_epi16(new_values, values_high);
